@@ -1,3 +1,5 @@
+%Will allow multiple files per day
+
 function [data, dataInfo] = loadData(dataFiles,currentDateNumber,totalNumberofDates, info,tableNames)
 fprintf('\nEvaluating Date %g of %g in folder %s',currentDateNumber,totalNumberofDates,info.siteFolder);
 
