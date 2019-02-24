@@ -1,4 +1,6 @@
 function outputStruct = getUTESpacData(rootFolder,varargin)
+%Updated name to getUTESpacData since getData was already a defined
+%function
 % getData loads and vertically concatnates processed data from UTESpac.
 % rootFolder:  location of site folders e.g. 'F:\'
 % options:
