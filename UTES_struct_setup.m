@@ -1,3 +1,8 @@
+%Prepare to calculate 2nd order structure parameters of temperature, humidity, and
+%the temperature humidity cross structure parameter
+
+%Can add to calculate further structure parameters here at a later date.
+
 function [output, raw] = UTES_struct_setup(data, info, output, raw, tableNames, sensorInfo)
 
 if isempty(raw)

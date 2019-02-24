@@ -204,7 +204,6 @@ for i = 1:size(dataFiles,1)
         % find sensible heat flux, momentum flux, latent heat flux, CO2 flux
         [output, raw] = fluxes(data, rotatedSonicData, info, output, sensorInfo,tableNames);
         
-        %ADDED BY ALEXEI
         % find spatial structure function and structure params
         if info.saveRawConditionedData
             [output , raw] = UTES_struct_setup(data, info, output, raw, tableNames, sensorInfo); %need to make work for multiple heights in same table
