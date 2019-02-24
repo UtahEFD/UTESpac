@@ -9,16 +9,16 @@ if isfield(sensorInfo,'u')
     % create warning field within output to store warning messages
     output.warnings = cell(1);
     
-    for i = 1:numSonics
+    for ii = 1:numSonics
         try
-            tble = sensorInfo.u(i,1);
-            bearing = sensorInfo.u(i,4);
-            sonHeight = sensorInfo.u(i,3);
+            tble = sensorInfo.u(ii,1);
+            bearing = sensorInfo.u(ii,4);
+            sonHeight = sensorInfo.u(ii,3);
             uCol = sensorInfo.u(sensorInfo.u(:,3)==sonHeight,2);
             vCol = sensorInfo.v(sensorInfo.v(:,3)==sonHeight,2);
             tableName = tableNames{tble};
             % check sonic manufacturere
-            if sensorInfo.u(i,5)
+            if sensorInfo.u(ii,5)
                 u = output.(tableName)(:,uCol);
                 v = output.(tableName)(:,vCol);
             else % for RMYoung swap u and v and multiply v by -1
@@ -53,11 +53,11 @@ if isfield(sensorInfo,'u')
                 flag((temp1+temp2) == 2) = 1;
             end
             output.spdAndDir(1:length(spd),1) = t;
-            output.spdAndDir(1:length(spd),i*3-1:i*3+1) = [dir spd flag];
+            output.spdAndDir(1:length(spd),ii*3-1:ii*3+1) = [dir spd flag];
             output.spdAndDirHeader{1} = 'timeStamp';
-            output.spdAndDirHeader{i*3-1} = sprintf('%gm direction',sonHeight);
-            output.spdAndDirHeader{i*3} = sprintf('%gm speed',sonHeight);
-            output.spdAndDirHeader{i*3+1} = sprintf('%gm flag %g<dir<%g',sonHeight,minAngle,maxAngle);
+            output.spdAndDirHeader{ii*3-1} = sprintf('%gm direction',sonHeight);
+            output.spdAndDirHeader{ii*3} = sprintf('%gm speed',sonHeight);
+            output.spdAndDirHeader{ii*3+1} = sprintf('%gm flag %g<dir<%g',sonHeight,minAngle,maxAngle);
         catch err
             message = strcat(err.message,'@ line',num2str(err.stack.line),' Unable to find wind direction and speed at:',num2str(sonHeight));
             warning(message)

@@ -56,7 +56,7 @@
 close all; clearvars; clc;
 
 % current UTESpac Version
-info.UTESpacVersion = '3.0';
+info.UTESpacVersion = '5.0';
 
 % enter root folder where site* folders are located
 info.rootFolder = 'G:\Airport_Wetlands_2015\Data\EC Towers';
@@ -66,31 +66,33 @@ info.avgPer = 30;
 
 % save QC'd raw tables (1 = yes, 0 = no)
 % 1 in order to save structure parameters.
-info.saveRawConditionedData = 1;
+info.saveRawConditionedData = true;
 
-% save netCDF file (1 = yes, 0 = no)
-info.saveNetCDF = 0;
+% save netCDF file
+info.saveNetCDF = false;
 
-% save .csv data (1 = yes, 0 = no)
-info.saveCSV = 0;
+% save .csv files
+info.saveCSV = false;
 
-% enter detrending format (0 for constant and 1 for linear)
-info.detrendingFormat = 1;
+% enter detrending format ('constant' or 'linear')
+info.detrendingFormat = 'linear';
 
-% --- PLANAR FIT INFORMATION
-% PFrange=1 -> PF is calculated from all data files (global).  PF=0 -> PF is calculated from local file only.  For
-% global calculation, data must be initially run with local PF (constDet and avgPer = 5) to generate QC'd wind data
-info.PF.globalCalculation = 1;
+% select 'local' or 'global' planar fit, 'local' computes coeffiecients from local file only, 'global' computes
+% user-defined, multi-sector, multi-datebin coefficients from all site data - the sector and datebins are defined
+% graphically when the code is executed - for 'global' calculations, all data must first be run with a 'local' planar
+% fit and 5-min averaging
+info.PF.globalCalculation = 'local';
 
-% recalulate global PF coefficients (1 = yes, 0 = no)?
-info.PF.recalculateGlobalCoefficients = 0;
+% recalulate global PF coefficients if 'global' calculation is used
+info.PF.recalculateGlobalCoefficients = false;
 
-% chose max and min wind magintudes for PF calculation
+% select averaging period for global PF calculation, if used - local PF calculation runs with average specified in
+% info.avgPer
+info.PF.avgPer = 30;
+
+% chose max and min wind magintudes for global PF calculation, if used - local PF calculation uses all velocity data
 info.PF.globalCalcMaxWind = 12;
 info.PF.globalCalcMinWind = 0.5;
-
-% select averaging period for global PF calculation. Local PF calculation run with average specified in info.avgPer
-info.PF.avgPer = 30;
 
 % give reference specific humidity if humidity measurement does not exist
 info.qRef = 12; % (g/kg)

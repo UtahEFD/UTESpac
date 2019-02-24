@@ -78,7 +78,7 @@ for i = 1:numTables
         if min(noSpikeFlag(1:end-1)); continue; end;
         
         tic
-        if j==1; display(sprintf('\nDespiking table %g - %s',i,tableNames{i})); end
+        if j==1; fprintf('\nDespiking table %g - %s',i,tableNames{i}); end
         
         % iterate through date bins
         for k = 1:length(breakPoints)-2
@@ -123,7 +123,7 @@ for i = 1:numTables
             end
             
             % --- linearly interpolate over spike values in localData
-            parfor col=2:tableColumns
+            for col=2:tableColumns
                 
                 % flag all spiked and nan'd values
                 badFlag = localSpikeFlags(:,col) | localNanFlag(:,col);
@@ -151,7 +151,7 @@ for i = 1:numTables
             % put local data back into data cell
             data{i}(startRow:endRow,:) = localData;
         end
-        display(sprintf('Pass %g time: %g seconds',j,toc))
+        fprintf('Pass %g time: %g seconds\n',j,toc)
     end
     
     %--- create mean spike flags and nan flags
