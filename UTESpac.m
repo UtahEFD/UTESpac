@@ -59,7 +59,7 @@ close all; clearvars; clc;
 info.UTESpacVersion = '5.0';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'G:\Airport_Wetlands_2015\Data\EC Towers';
+info.rootFolder = 'H:\Alexei\Data\BSF_Station';
 
 % enter averaging period in minutes.  Must yield an integer when dividied into 60 (e.g. 1, 2, 5, 10, 20, 30)
 info.avgPer = 30;
@@ -146,27 +146,27 @@ info.diagnosticTest.meanLiGasDiagnosticLimit = 220;  % Full strength is 255, les
 % ---
 
 % SPECIFY SENSOR TEMPLATES [expected units]
-template.u = 'Ux_'; % sonic u  --   [m/s]
-template.v = 'Uy_'; % sonic v  --   [m/s]
-template.w = 'Uz_'; % sonic w  --   [m/s]
-template.Tson = 'T_Sonic_'; % sonic T  --   [C or K]
-template.sonDiagnostic = 'sonic_diag_'; % sonic diagnostic  --  [-]
-template.fw = 'FW_'; % sonic finewires to be used for Eddy Covariance  --  [C]
-template.RH = 'HMP_RH_'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
-template.T = 'HMP_T_'; % slow response temperature  --  [C]
-template.P = 'Pressure_'; % pressure  --  [kPa or mBar]
-template.irgaH2O = 'H2O_'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [g/m^3]
-template.irgaH2OsigStrength = 'H2OSig_'; % EC150 Signal Strength  --  [-]
-template.irgaCO2 = 'CO2_'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [mg/m^3]
-template.irgaCO2sigStrength = 'CO2Sig_'; % EC150 Signal Strength  --  [-]
-template.irgaGasDiag = 'gas_diag_'; % EC150 gas (CO2 and H2O) diagnostic, 0-> Okay  --  [-]
-template.LiH2O = 'LiH2O_'; % for use with Licor 7500.  WPL corrections applied  --  [mmol/mol]
-template.LiCO2 = 'LiCO2_'; % for use with Licor 7500.  WPL corrections applied  --  [mmol/mol]
-template.LiGasDiag = 'Li_gas_diag_'; % Li7500 gas (CO2 and H2O) diagnostic >~230 -> Okay  --  [-]
-template.KH2O = 'KH2O_H2O_'; % for use with KH2Os.  WPL and O2 corrections applied  --  [g/m^3]
-template.cup = 'cup_';  % wind speed from cup anemometers  --  [m/s]
-template.birdSpd = 'wbSpd_';  % wind speed from prop anemometer  --  [m/s]
-template.birdDir = 'wbDir_';  % wind direction from vain or prop anemometer  --  [deg]
+template.u = 'Ux_*'; % sonic u  --   [m/s]
+template.v = 'Uy_*'; % sonic v  --   [m/s]
+template.w = 'Uz_*'; % sonic w  --   [m/s]
+template.Tson = 'T_Sonic_*'; % sonic T  --   [C or K]
+template.sonDiagnostic = 'sonic_diag_*'; % sonic diagnostic  --  [-]
+template.fw = 'FW_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
+template.RH = 'HMP_RH_*'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
+template.T = 'HMP_T_*'; % slow response temperature  --  [C]
+template.P = 'Pressure_*'; % pressure  --  [kPa or mBar]
+template.irgaH2O = 'H2O_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [g/m^3]
+template.irgaH2OsigStrength = 'H2OSig_*'; % EC150 Signal Strength  --  [-]
+template.irgaCO2 = 'CO2_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [mg/m^3]
+template.irgaCO2sigStrength = 'CO2Sig_*'; % EC150 Signal Strength  --  [-]
+template.irgaGasDiag = 'gas_diag_*'; % EC150 gas (CO2 and H2O) diagnostic, 0-> Okay  --  [-]
+template.LiH2O = 'LiH2O_*'; % for use with Licor 7500.  WPL corrections applied  --  [mmol/mol]
+template.LiCO2 = 'LiCO2_*'; % for use with Licor 7500.  WPL corrections applied  --  [mmol/mol]
+template.LiGasDiag = 'Li_gas_diag_*'; % Li7500 gas (CO2 and H2O) diagnostic >~230 -> Okay  --  [-]
+template.KH2O = 'KH2O_H2O_*'; % for use with KH2Os.  WPL and O2 corrections applied  --  [g/m^3]
+template.cup = 'cup_*';  % wind speed from cup anemometers  --  [m/s]
+template.birdSpd = 'wbSpd_*';  % wind speed from prop anemometer  --  [m/s]
+template.birdDir = 'wbDir_*';  % wind direction from vain or prop anemometer  --  [deg]
 %% ------------------------------------------------ANALYSIS-------------------------------------------------------------
 % find data files and load headers
 [headers, dataFiles, tableNames, info] = findFiles(info);
