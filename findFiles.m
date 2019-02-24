@@ -1,3 +1,5 @@
+%Allows for multiple files per day
+
 function [headersCell, dataFiles, tableNames, info] = findFiles(info)
 
 % find possible sites of interest

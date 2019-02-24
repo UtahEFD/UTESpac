@@ -22,7 +22,7 @@ for ii = 1:size(dataFiles,2)
     expectedTableColumns = info.tableNumberOfColumns(tableNumber);
 
     % display info
-    fprintf('\nloading %s.  Expected Scan Frequency = %0.02g Hz and Number of .csv Columns = %0.02g. Defined in siteInfo.m',dataFiles{ii},sampleFrequency,expectedTableColumns)
+    fprintf('\nloading %s.\nDefined in siteInfo.m\n\tExpected Scan Frequency = %0.02g Hz\n\tNumber of .csv Columns = %0.02g.',dataFiles{ii},sampleFrequency,expectedTableColumns)
 
     % load file into temp
     first = 1;
