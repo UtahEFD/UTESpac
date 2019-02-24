@@ -187,7 +187,7 @@ for i = 1:size(dataFiles,1)
         [data, dataInfo] = loadData(dataFiles(i,:, :),i,size(dataFiles,1),info,tableNames);
         
         % store serial date in column 1 of data tables and delete columns 2-4
-        [data, dataInfo, info] = UTESdate(data, dataInfo, info);
+        [data, dataInfo, info] = findSerialDate(data, dataInfo, info);
         
         % condition data
         [data, output] = conditionData(data,info,tableNames,template,headers);
