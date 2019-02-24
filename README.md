@@ -1,9 +1,10 @@
-Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac) 
-Created by: Derek Jensen and Eric Pardyjak
-derek591@gmail.com 
-Version 4.1 
-Version Date: 15 January 2017
+# Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac) 
+**Created by:** Derek Jensen (<derek591@gmail.com>) and Eric Pardyjak
+**Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)
+**Version:** 5.0
+**Version Date:** 24 Feb 2019
 
+## NOTE: This readme needs to be updated
 About:
 
 UTESpac is designed specifically for use with Campbell Scientific dataloggers and accompanying LoggerNet software with
