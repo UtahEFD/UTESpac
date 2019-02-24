@@ -30,7 +30,9 @@ for ii = 1:length(headers)
     currentHeaderFileName = headers(ii).name;
     try
         % find current header array
-        currentHeaderArray =  importHeader(strcat(info.rootFolder,filesep,site,filesep,currentHeaderFileName));
+        headerFile = fopen(strcat(info.rootFolder,filesep,site,filesep,currentHeaderFileName));
+        headerLine = fgetl(headerFile);
+        currentHeaderArray =  strsplit(headerLine, ',');
                
         % store measurement height on second row of currentHeaderArray
         for jj = 1:length(currentHeaderArray)
@@ -105,36 +107,44 @@ for ii = 1:length(headers)
             str2double(tableFile(dateBeginLoc+14:dateBeginLoc+15)),0); % minute, second
     end
     
+    %Find Unique Days
+    [a, ind] = unique(floor(csvDates));
+    
     % place csv files in cell matrix where the row is determined by the date
     if ii == 1
         dateBegin = floor(min(csvDates)-20); % all tables must begin and end within 20 days of first and last dates of table1
         dateEnd = floor(max(csvDates)+20);
-        dataFiles = cell(dateEnd-dateBegin,length(headers));
+        dataFiles = cell(dateEnd-dateBegin,length(headers), round(max(diff(ind))/10)*10);
     end
-    for jj = 1:length(csvFiles)
-        dataFiles{floor(csvDates(jj))-dateBegin,ii} = csvFiles{jj};
+    for jj = 1:(length(ind)-1)
+        for qq=1:length(ind(jj):ind(jj+1)-1)
+            dataFiles{floor(a(jj))-dateBegin,ii, qq} = csvFiles{ind(jj)+qq-1};
+        end
     end
 end
 % check cell matrix for empty rows and delete them
-%dataFiles(cellfun(@isempty,dataFiles(:,1)) & cellfun(@isempty,dataFiles(:,2)),:) = [];
-dataFiles(logical(sum(cellfun(@isempty,dataFiles),2))) = [];
+dataFilesFlag = logical(sum(sum(cellfun(@isempty,dataFiles),3)==size(dataFiles, 3), 2));
+
+dataFiles = dataFiles(~dataFilesFlag, :, :);
 
 % ask user to select which dates to calculate
 displayCell = cell(size(dataFiles,1),size(dataFiles,2)+1);
 displayCell(1:end,1) = num2cell(1:size(dataFiles,1))';
-displayCell(1:end,2:end) = dataFiles;
+displayCell(1:end,2:end) = dataFiles(:, :, 1);
 
-display(sprintf('\nDisplaying all files'))
+fprintf('\nDisplaying all files.\nNote: only displaying first file found for each day.');
 showcell(displayCell);
 
 SOI = input('Plese input dates of interest. e.g. [1 3 4:7] or ''0'' for all dates: ');
 
 if SOI > 0
-    dataFiles = dataFiles(SOI,:);
+    dataFiles = dataFiles(SOI,:, :);
 end
 for ii = 1:size(dataFiles,2)
     for jj = 1:size(dataFiles,1)
-        dataFiles{jj,ii} = strcat(info.rootFolder,filesep,site,filesep,dataFiles{jj,ii});
+        for kk=1:size(dataFiles, 3)
+            dataFiles{jj,ii, kk} = strcat(info.rootFolder,filesep,site,filesep,dataFiles{jj,ii, kk});
+        end
     end
 end
 clc

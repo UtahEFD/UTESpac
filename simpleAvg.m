@@ -1,10 +1,9 @@
 function AVG = simpleAvg(input,avgPer,varargin)
+% returnTimestamps,WDpntr,WSpntr)
 %simpleAvg.m finds the time average of a matrix based on the serial date number. The first averaging period will be from
 %start_hour:00 to start_hour:avg_per and will end at start_hour:00 on the last day of data.  It is more generalized than
-%avg.m.  !!The matrix should first be filled with timeStampFill since averaging bins are determined with linspace.m
-%rather than find.m!! Optional arguments: returnTimestamps - true(default) time stamps returned; false time stamps
-%ommited from averaged matrix WDpntr & WSpntr: logical array indicating wind direction and wind speed for vector average
-%wind speed calculation
+%avg.m.  !!The matrix should first be filled with timeStampFill since averaging bins are determined with linspace.m rather
+%than find.m!!
 
 if nargin == 3
     returnTimeStamps = varargin{1};
@@ -30,6 +29,7 @@ if isempty(tCol) || N > size(input,1)  || range(diff(input(:,tCol))) > datenum(0
     return
 end
 
+
 % find averaging breakpoints. size(bp,1) = size(N,1) + 1.  Round() is being used as a precaution
 bp = round(linspace(0,size(input,1),N+1));
 
@@ -45,9 +45,16 @@ for i = 1:N
     if exist('WDpntr','var') && exist('WSpntr','var')        
         WS = input(bp(i)+1:bp(i+1),WSpntr);
         WD = deg2rad(input(bp(i)+1:bp(i+1),WDpntr));
-        v = nanmean(WS.*sin(WD),1);
-        u = nanmean(WS.*cos(WD),1);
-        AVG(i,WDpntr) = mod(atan2(v,u)*180/pi,360);
+        
+        % find mean wind direction (Yamartino method - https://en.wikipedia.org/wiki/Yamartino_method)
+        sa = nanmean(sin(WD),1);
+        ca = nanmean(cos(WD),1);
+        
+        % normalize u and v
+        ca = ca./(ca.^2 + sa.^2).^0.5;
+        sa = sa./(ca.^2 + sa.^2).^0.5;
+        
+        AVG(i,WDpntr) = mod(atan2(sa,ca)*180/pi,360);
     end
         
 end

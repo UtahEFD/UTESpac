@@ -1,4 +1,4 @@
-function outputStruct = getData(rootFolder,varargin)
+function outputStruct = getUTESpacData(rootFolder,varargin)
 % getData loads and vertically concatnates processed data from UTESpac.
 % rootFolder:  location of site folders e.g. 'F:\'
 % options:
@@ -8,7 +8,7 @@ function outputStruct = getData(rootFolder,varargin)
 % 'rows' - array corresponding to processed dates in alphanumerical order.  e.g. 0; [5:20];
 
 if nargin < 2
-    varargin = 0;
+    varargin = cell.empty;
 end
 
 % initialize output structure subfields
@@ -19,7 +19,7 @@ sitesStruct = dir(strcat(rootFolder,filesep,'site*'));
 
 % find location of 'site' option if it exists
 siteOptionLocation = strcmp(varargin,'site');
-if ~max(siteOptionLocation) % if 'site' option not used, display all sites
+if isempty(siteOptionLocation) % if 'site' option not used, display all sites
     % display possible sites to command window
     for ii = 1:length(sitesStruct)
         display(sprintf('%g. %s',ii,sitesStruct(ii).name));
@@ -41,10 +41,10 @@ siteFolder = strcat(rootFolder,filesep,site);
 
 % find output file avgPer
 avgPerOptionLocation = strcmp(varargin,'avgPer');
-if max(avgPerOptionLocation)
+if ~isempty(avgPerOptionLocation)
     avgPer = varargin{find(avgPerOptionLocation)+1};
 else
-    avgPer = [];
+    avgPer = '';
 end
 
 % find output file qualifier
@@ -52,15 +52,24 @@ qualifierOptionLocation = strcmp(varargin,'qualifier');
 if max(qualifierOptionLocation)
     qualifier = varargin{find(qualifierOptionLocation)+1};
 else
-    qualifier = [];
+    qualifier = '';
 end
 
 % find possible output files of interest
-filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*_',num2str(avgPer),'*',qualifier,'*mat'));
+if isempty(varargin)
+    filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*.mat'));
+else
+    if ~isempty(qualifier)
+        tmpName = ['*', qualifier];
+    else
+        tmpName = '';
+    end
+    filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*_',num2str(avgPer),tmpName,'*.mat'));
+end
 
 % find location of 'rows' option if it exists
 rowsOptionLocation = strcmp(varargin,'rows');
-if max(rowsOptionLocation)
+if ~isempty(rowsOptionLocation)
     rows = varargin{find(rowsOptionLocation)+1};
 else
     % display possible output files to command window
@@ -128,12 +137,6 @@ for ii = 1:numel(outputFileName)
         end
     end
     
-    % if the number of rows in all tables is not the same, continue to next file
-    if numel(unique(numRows)) > 1
-        warning('Number of rows in %s inconsistent accross tables, date will be skipped',outputFileName{ii})
-        continue
-    end
-    
     % iterate through allFields
     for jj = 1:numel(outputFields)
         
@@ -163,10 +166,6 @@ for ii = 1:numel(outputFileName)
             numExpectedRows = numRows(1);
             numExpectedCols = size(outputStruct.(outputFields{jj}),2);
             
-            if numLocalCols ~= numExpectedCols || numLocalRows ~= numExpectedRows
-                localData = nan(numExpectedRows,numExpectedCols);
-                warning('File: %s.  Field: %s.  Expected Size = [%g %g].  Actual Size = [%g %g].  NaN(expected size) will be used.',outputFileName{ii},outputFields{jj},numExpectedRows,numExpectedCols,numLocalRows,numLocalCols)
-            end
             outputStruct.(outputFields{jj}) = [outputStruct.(outputFields{jj}); localData];
         end
         

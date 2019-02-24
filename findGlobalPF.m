@@ -9,7 +9,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
     disp('Finding Global Planar Fit Coefficients (b0, b1, b2)')
     allSites = dir([info.rootFolder,filesep,'site*']); allSites = {allSites(:).name};
     siteNum = find(strcmp(allSites,info.siteFolder));
-    data = getData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0);
+    data = getUTESpacData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0);
     siteName = info.siteFolder(5:end);
 
     % find sonic heights
@@ -20,6 +20,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
     
     % find raw table names
     tableNames = data.tableNames;
+    
     
     % iterate through heights
     for ii = 1:length(z)
@@ -35,31 +36,31 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         end
         
         % find variable name at ith height
-        varName_u = strrep(template.u,'*',num2str(z(ii)));
-        varName_v = strrep(template.v,'*',num2str(z(ii)));
-        varName_w = strrep(template.w,'*',num2str(z(ii)));
-        varName_sonDiag = strrep(template.sonDiagnostic,'*',num2str(z(ii)));
+        varName_u = [template.u,num2str(z(ii))];
+        varName_v = [template.v,num2str(z(ii))];
+        varName_w = [template.w,num2str(z(ii))];
+        varName_sonDiag = [template.sonDiagnostic,num2str(z(ii))];
         
         % find table containing variable names
-        flag = [];
+        flag = 0;
         for j = 1:length(tableNames)
-            flag = sum(strcmp(data.(strcat(tableNames{j},'Header'))(1,:),varName_u));
-            localSonicTable = tableNames{j};
-            if flag
+            flag = cellfun(@(x) ~isempty(strfind(x, varName_u)), data.([tableNames{j}, 'Header'])(1, :), 'UniformOutput', false);
+            flag = cell2mat(flag);
+            if any(flag)
+                localSonicTable = tableNames{j};
                 break
+            elseif j==length(tableNames) && ~any(flag)
+                error(['Could not find table with: ', varName_u]);
             end
         end
         
-        % throw error if no table found, else, find appropriate columns
-        if isempty(flag)
-            error('Unable to find sonic table for sonic at %g m in findGloablPF.m @ ln 30-37.',z(ii))
-        end
-        
         % find velocity columns within correct table
-        uCol = strncmp(data.(strcat(localSonicTable,'Header'))(1,:),varName_u,numel(varName_u));
-        vCol = strncmp(data.(strcat(localSonicTable,'Header'))(1,:),varName_v,numel(varName_v));
-        wCol = strncmp(data.(strcat(localSonicTable,'Header'))(1,:),varName_w,numel(varName_w));
-        sonDiagnosticCol = strncmp(data.(strcat(localSonicTable,'Header'))(1,:),varName_sonDiag,numel(varName_sonDiag));
+        headerField = [localSonicTable, 'Header'];
+        
+        uCol = strncmp(data.(headerField)(1,:),varName_u,numel(varName_u));
+        vCol = strncmp(data.(headerField)(1,:),varName_v,numel(varName_v));
+        wCol = strncmp(data.(headerField)(1,:),varName_w,numel(varName_w));
+        sonDiagnosticCol = strncmp(data.(headerField)(1,:),varName_sonDiag,numel(varName_sonDiag));
         spdCol = strcmp(data.spdAndDirHeader,[num2str(z(ii)),'m speed']);
         dirFlagCol = strncmp(data.spdAndDirHeader,[num2str(z(ii)),'m flag'],length([num2str(z(ii)),'m flag']));
         
@@ -87,6 +88,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         totalFlag = uTotalFlag | vTotalFlag | wTotalFlag | sonDiagFlag;
         
         % store variables
+        
         u = data.(localSonicTable)(~totalFlag,uCol);
         v = data.(localSonicTable)(~totalFlag,vCol);
         w = data.(localSonicTable)(~totalFlag,wCol);
@@ -121,7 +123,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         direction = mod(atan2(-1*vDir,uDir)*180/pi+bearing,360);
         
         % plot seasonal wind histogram and have user select sectors
-        figure('units','normalized','outerposition',[0 0 1 1])
+        figure('units','normalized','outerposition',[0 0 .5 .5])
         % histogram
         subplot(2,1,1)
         hist(direction,100)

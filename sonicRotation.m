@@ -1,18 +1,18 @@
 function [rotatedSonicData, output, dataInfo] = sonicRotation(output,data,sensorInfo,info,dataInfo,tableNames,PFinfo)
 % sonicRotation applies a single sector, local (single .csv file) or global, multi-sector (all .csv files in siteFolder)
-% planar fit and yaw rotation to the sonic data.  The global coefficients are created in PFinfo.m (line ?? in UTESpac)
-% and the global option is controlled by info.PF.recalculateGlobalCoefficients (line ?? in UTESpac). 
+% planar fit and yaw rotation to the sonic data.  The global coefficients are created in PFinfo.m (line 126 in UTESpac)
+% and the global option is controlled by info.PF.recalculateGlobalCoefficients (line 94 in UTESpac). 
 if isfield(sensorInfo,'u')
-    fprintf('\nPlanar Fitting and Performing Yaw Rotation on Sonics\n')
+    display(sprintf('\nPlanar Fitting and Performing Yaw Rotation on Sonics'))
     % find number of sonics
     numSonics = size(sensorInfo.u,1);
         
     % iterate through all sonics
-    for ii = 1:numSonics
+    for i = 1:numSonics
         try
             % find sonic information
-            tble = sensorInfo.u(ii,1);
-            sonHeight = sensorInfo.u(ii,3);
+            tble = sensorInfo.u(i,1);
+            sonHeight = sensorInfo.u(i,3);
             uCol = sensorInfo.u(sensorInfo.u(:,3)==sonHeight,2);
             vCol = sensorInfo.v(sensorInfo.v(:,3)==sonHeight,2);
             wCol = sensorInfo.w(sensorInfo.v(:,3)==sonHeight,2);
@@ -32,10 +32,10 @@ if isfield(sensorInfo,'u')
             %------------------------------------ PLANAR FIT (wbar ->0) -----------------------------------------------------------
             
             % --- GLOBAL PF CALCULATION
-            if strcmp(info.PF.globalCalculation,'global') && exist('PFinfo','var') && isfield(PFinfo,sprintf('cm_%g',sonHeight*100))
+            if info.PF.globalCalculation && exist('PFinfo','var') && isfield(PFinfo,sprintf('cm_%g',sonHeight*100))
                 
                 % put global pf info into data info column
-                if ii == 1
+                if i == 1
                     dataInfo(1:size(PFinfo.infoString,1),end+1:end+size(PFinfo.infoString,2)) = PFinfo.infoString;
                 end
                 
@@ -43,26 +43,26 @@ if isfield(sensorInfo,'u')
                 dateBins = fields(PFinfo.(sprintf('cm_%g',sonHeight*100)));
                 
                 % iterate through datebins
-                for jj = 1:length(dateBins)
+                for j = 1:length(dateBins);
                     
                     % extract date numbers from field name.  Replace '_' and 'to' from bin name to allow sscanf
-                    jth_PF_date_bin = sscanf(strrep(strrep(dateBins{jj},'_',' '),'to',' '),'%*s %d %d');
+                    jth_PF_date_bin = sscanf(strrep(strrep(dateBins{j},'_',' '),'to',' '),'%*s %d %d');
                     local_dates_span = [min(tAvg), max(tAvg)];
                     
                     % check to see if local data falls within date bin.  Otherwise, continue.
                     if local_dates_span(1)>=jth_PF_date_bin(1) && local_dates_span(1)<=jth_PF_date_bin(2) || local_dates_span(2)>=jth_PF_date_bin(1) && local_dates_span(2)<=jth_PF_date_bin(2)
                         
                         % find all direcition bins
-                        dirBins = fields(PFinfo.(sprintf('cm_%g',sonHeight*100)).(dateBins{jj}));
+                        dirBins = fields(PFinfo.(sprintf('cm_%g',sonHeight*100)).(dateBins{j}));
                         
                         % iterate though all direction bins
-                        for kk = 1:length(dirBins)
+                        for k = 1:length(dirBins)
                             
                             % find local direction bin
-                            kth_dir_bin = sscanf(strrep(dirBins{kk},'_',' '),'%*s %d %*s %d');
+                            kth_dir_bin = sscanf(strrep(dirBins{k},'_',' '),'%*s %d %*s %d');
                             
                             % find local coefficients
-                            localCoef = PFinfo.(sprintf('cm_%g',sonHeight*100)).(dateBins{jj}).(dirBins{kk});
+                            localCoef = PFinfo.(sprintf('cm_%g',sonHeight*100)).(dateBins{j}).(dirBins{k});
                             b1 = localCoef(1);
                             b2 = localCoef(2);
                             
@@ -91,11 +91,11 @@ if isfield(sensorInfo,'u')
                             h(cumsum(repititions))=1;
                             mean_dir_20Hz=dirAvg(cumsum(h)-h+1,:);
                             
-                            % find rows within jjth date bin
+                            % find rows within jth date bin
                             dateLogical = zeros(size(t));
                             dateLogical(t>=jth_PF_date_bin(1) & t<=jth_PF_date_bin(2)) = 1;
                             
-                            % find rows within kkth direction bin
+                            % find rows within kth direction bin
                             dirLogical = zeros(size(t));
                             if kth_dir_bin(1) - kth_dir_bin(2) == 0  % one sector
                                 dirLogical = 1;
@@ -113,22 +113,22 @@ if isfield(sensorInfo,'u')
                             % apply local planar fit to data
                             windPF(rowLogical,:) = (P*[u(rowLogical) v(rowLogical) w(rowLogical)]')';
                         end
-                    else % if no local data falls within jjth date bin, continue
+                    else % if no local data falls within jth date bin, continue
                         continue
                     end
                 end
                 % failed global calculation due to non-existant PFinfo
-            elseif strcmp(info.PF.globalCalculation,'global') && info.PF.recalculateGlobalCoefficients && ~exist('PFinfo','var')
+            elseif info.PF.globalCalculation && info.PF.recalculateGlobalCoefficients && ~exist('PFinfo','var')
                 error('PFinfo variable failed to load.  Check/re-run findGlobalPR.mat')
                 
                 % failed global calculation due to non-existant PFinfo at ith height
-            elseif strcmp(info.PF.globalCalculation,'global') && info.PF.recalculateGlobalCoefficients && exist('PFinfo','var') && ~isfield(PFinfo,sprintf('cm_%g',sonHeight*100))
+            elseif info.PF.globalCalculation && info.PF.recalculateGlobalCoefficients && exist('PFinfo','var') && ~isfield(PFinfo,sprintf('cm_%g',sonHeight*100))
                 error('PF info at %g m does not exist.  Check/re-run findGlobalPR.mat',sonHeight)
                 
                 % --- LOCAL PF CALCULATION
             else
                 % initialize dataInfo column to store local coefficients in
-                if ii==1 || ~exist('dataInfoCol','var')
+                if i==1 || ~exist('dataInfoCol','var')
                     dataInfoCol = size(dataInfo,2)+1;
                     dataInfo{1,dataInfoCol} = 'Local PF Coefficients';
                 end
@@ -181,9 +181,10 @@ if isfield(sensorInfo,'u')
                 % output pitch and roll angles to command window and dataInfo
                 pitch = asin(-b1/sqrt(1+b1^2))*180/pi;  
                 roll = asin(b2/sqrt(1+b2^2))*180/pi;
-                fprintf('Sonic @ %gm\t pitch=%.3g\t roll=%.3g degrees.\n',sensorInfo.u(ii,3),pitch,roll);
-                dataInfo{ii+1,dataInfoCol} = sprintf('%gm\t b0=%.3g\t b1=%.3g\t b2=%.3g -\t pitch=%.3g\t roll=%.3g deg',sonHeight,coef(1),coef(2),coef(3),pitch,roll);
-                              
+                display(sprintf('Sonic @ %gm\t pitch=%.3g\t roll=%.3g degrees.',sensorInfo.u(i,3),pitch,roll));
+                dataInfo{i+1,dataInfoCol} = sprintf('%gm\t b0=%.3g\t b1=%.3g\t b2=%.3g -\t pitch=%.3g\t roll=%.3g deg',sonHeight,coef(1),coef(2),coef(3),pitch,roll);
+                
+                
                 % find Values of B C and D matrices
                 p31 = -b1/(b1^2+b2^2+1)^0.5;
                 p32 = -b2/(b1^2+b2^2+1)^0.5;
@@ -228,15 +229,15 @@ if isfield(sensorInfo,'u')
             N = (ceil(t(end))-floor(t(1)))/(info.avgPer/(24*60));
             
             % initialize rotated data
-            if ii == 1
+            if i == 1
                 rotatedSonicData = nan(size(windPF));
             else
-                rotatedSonicData(:,3*ii-2:3*ii) = nan(size(windPF,1),3);
+                rotatedSonicData(:,3*i-2:3*i) = nan(size(windPF,1),3);
             end
             % create output header
-            output.rotatedSonicHeader{1,3*ii-2} = sprintf('%gm:u',sonHeight);
-            output.rotatedSonicHeader{1,3*ii-1} = sprintf('%gm:v',sonHeight);
-            output.rotatedSonicHeader{1,3*ii} = sprintf('%gm:w',sonHeight);
+            output.rotatedSonicHeader{1,3*i-2} = sprintf('%gm:u',sonHeight);
+            output.rotatedSonicHeader{1,3*i-1} = sprintf('%gm:v',sonHeight);
+            output.rotatedSonicHeader{1,3*i} = sprintf('%gm:w',sonHeight);
             
             % iterate through all rows
             for row = 1:N
@@ -252,7 +253,7 @@ if isfield(sensorInfo,'u')
                 M = [cosGamma(row) sinGamma(row) 0; -sinGamma(row) cosGamma(row) 0; 0 0 1];
                 
                 % rotate data over averaging period
-                rotatedSonicData(I0:I1,3*ii-2:3*ii) = (M*windPF(I0:I1,:)')';
+                rotatedSonicData(I0:I1,3*i-2:3*i) = (M*windPF(I0:I1,:)')';
                 
                 % set up next iteration
                 I0 = I1+1;
@@ -263,8 +264,7 @@ if isfield(sensorInfo,'u')
             warning(message)
             if isempty(output.warnings{1})
                 output.warnings{1,1} = message;
-            else
-                output.warnings{end+1,1} = message;
+            else output.warnings{end+1,1} = message;
             end
         end
     end
@@ -280,7 +280,7 @@ if isfield(sensorInfo,'u')
             output.warnings{1,1} = message;
         else output.warnings{end+1,1} = message;
         end
-        pause(3);
+        pause(4);
     end
 else
     rotatedSonicData = [];

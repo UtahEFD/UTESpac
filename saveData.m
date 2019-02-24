@@ -9,17 +9,20 @@ output.tableNames = tableNames;
 output = orderfields(output);
 
 % find correct filename and save output
-if strcmp(info.PF.globalCalculation,'global')
+if info.PF.globalCalculation
     PFtype = 'GPF_';
 else
     PFtype = 'LPF_';
 end
-if strcmp(info.detrendingFormat,'linear')
+if info.detrendingFormat
     detrendType = 'LinDet_';
 else
     detrendType = 'ConstDet_';
 end
 %% save .mat structure
+if ~exist([info.rootFolder,filesep,info.siteFolder,filesep,'output'], 'dir')
+    mkdir([info.rootFolder,filesep,info.siteFolder,filesep,'output']);
+end
 fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,info.date,'.mat');
 save(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName),'output');
 %% save .csv file
@@ -37,19 +40,19 @@ if info.saveNetCDF
     
     % condition structure: convert cell strings to char arrays and logicals to doubles
     allFields = fields(output);
-    for ii = 1:numel(allFields)
+    for i = 1:numel(allFields)
         
         % turn header cell strings to char arrays
-        if iscell(output.(allFields{ii})) && size(output.(allFields{ii}),1)<3 && size(output.(allFields{ii}),1)>0
-            output.(allFields{ii}) = output.(allFields{ii})(1,:);
-            for j = 1:size(output.(allFields{ii}),2)
-                output.(allFields{ii}){1,j} =  ['(',num2str(j),')',output.(allFields{ii}){1,j},' '];
+        if iscell(output.(allFields{i})) && size(output.(allFields{i}),1)<3 && size(output.(allFields{i}),1)>0
+            output.(allFields{i}) = output.(allFields{i})(1,:);
+            for j = 1:size(output.(allFields{i}),2)
+                output.(allFields{i}){1,j} =  ['(',num2str(j),')',output.(allFields{i}){1,j},' '];
             end
-            output.(allFields{ii}) = cell2mat(output.(allFields{ii}))';
+            output.(allFields{i}) = cell2mat(output.(allFields{i}))';
             
             % turn logicals to floats
-        elseif islogical(output.(allFields{ii}))
-            output.(allFields{ii}) = double(output.(allFields{ii}));
+        elseif islogical(output.(allFields{i}))
+            output.(allFields{i}) = double(output.(allFields{i}));
             
         end
     end
