@@ -68,7 +68,7 @@ info.avgPer = 5;
 info.saveRawConditionedData = false;
 
 % save structure parameters for temperature and humidity
-info.saveStructParams = true;
+info.saveStructParams = false;
 
 % save netCDF file
 info.saveNetCDF = false;

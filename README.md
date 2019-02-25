@@ -12,6 +12,10 @@
 - Many error messages are obsolete and need to be made more user friendly
 - UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
 
+#### 5.0-5.1
+- Allow user input of file format.
+- Allow user to specify table name to be different from 'Table name' in file format
+
 #### 4.1-5.0  
 - Allow source CSV files to have multiple files per day.
 - Added calculations for 2nd order structure function for temperature and humidity
