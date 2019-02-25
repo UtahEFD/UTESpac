@@ -5,7 +5,25 @@
 **Version Date:** 24 Feb 2019
 
 ## NOTE: This readme needs to be updated  
-About:
+***
+### Version History  
+
+#### To Do / Known Bugs  
+- Many error messages are obsolete and need to be made more user friendly
+- UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
+
+#### 4.1-5.0  
+- Allow source CSV files to have multiple files per day.
+- Added calculations for 2nd order structure function for temperature and humidity
+- Data output directory will now be automatically created if it does not exist
+- Changed some outputs to Matlab screen to make reading easier.
+- Changed some function names so they do not coincide with built in matlab functions
+
+#### 1.0-4.1  
+- I do not have this information
+
+***
+### About:
 
 UTESpac is designed specifically for use with Campbell Scientific dataloggers and accompanying LoggerNet software with
 native support for 
