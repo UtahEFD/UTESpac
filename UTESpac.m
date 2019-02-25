@@ -59,14 +59,14 @@ close all; clearvars; clc;
 info.UTESpacVersion = '5.0';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'H:\Alexei\Data\BSF_Station';
+info.rootFolder = 'G:\Alexei\Data\Airport_Wetlands\ECTowers';
 
 % enter averaging period in minutes.  Must yield an integer when dividied into 60 (e.g. 1, 2, 5, 10, 20, 30)
-info.avgPer = 30;
+info.avgPer = 5;
 
 % save QC'd raw tables (1 = yes, 0 = no)
 % 1 in order to save structure parameters.
-info.saveRawConditionedData = true;
+info.saveRawConditionedData = false;
 
 % save netCDF file
 info.saveNetCDF = false;
@@ -150,10 +150,10 @@ template.u = 'Ux_*'; % sonic u  --   [m/s]
 template.v = 'Uy_*'; % sonic v  --   [m/s]
 template.w = 'Uz_*'; % sonic w  --   [m/s]
 template.Tson = 'T_Sonic_*'; % sonic T  --   [C or K]
-template.sonDiagnostic = 'sonic_diag_*'; % sonic diagnostic  --  [-]
-template.fw = 'FW_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
+template.sonDiagnostic = 'diagnostic_*'; % sonic diagnostic  --  [-]
+template.fw = 'fw_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
 template.RH = 'HMP_RH_*'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
-template.T = 'HMP_T_*'; % slow response temperature  --  [C]
+template.T = 'HMP_TC_*'; % slow response temperature  --  [C]
 template.P = 'Pressure_*'; % pressure  --  [kPa or mBar]
 template.irgaH2O = 'H2O_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [g/m^3]
 template.irgaH2OsigStrength = 'H2OSig_*'; % EC150 Signal Strength  --  [-]
@@ -175,7 +175,7 @@ template.birdDir = 'wbDir_*';  % wind direction from vain or prop anemometer  --
 [sensorInfo, info] = findInstruments(headers,template,info);
 
 % find global PF coefficients
-if info.PF.globalCalculation
+if strcmp(info.PF.globalCalculation,'global')
     PFinfo = findGlobalPF(info,template,sensorInfo);
 else
     PFinfo = [];
