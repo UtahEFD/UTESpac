@@ -1,78 +1,74 @@
-% Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac) 
-% Created by: Derek Jensen and Eric Pardyjak
-% derek591@gmail.com 
-% Version 4.1 
-% Version Date: 15 January 2017
-% 
-% About:
-% 
-% UTESpac is designed specifically for use with Campbell Scientific dataloggers and accompanying LoggerNet software with
-% native support for 
-% 
-%       Sonic Anemometers:  RMYOUNG 8100, Campbell Sci CSAT3 Open Path Gas Analyzers:  Licor 7500, Campbell Sci EC150 and 
-%       IRGASON, Krypton Hygrometers Finewire thermocouples for heat flux computations Propeller Anemometers Mean
-%       meteorological sensors (e.g. T/RH, Pressure, Solar, cup anemometers, etc.)
-%    
-% UTESpac expects 24 or 48-hr CSV tables, quality controls the data and then computes means, fluxes, variances and 
-% derived temperatures (potential temperature, virtual potential temperature) and stores the output in a MatLab
-% structure or NetCDF file.
-% 
-% Steps for Use:
-% 
-% 1.  Convert Campbell Binary files to csv files using the Card Convert Program in LoggerNet
-%      Options: File Processing - Use Time, set to 2 days 00 h under Time Settings
-%                       File naming - Use TimeDate Filenames and Append to Last File if multiple site files exist Array CSV Options
-%                       Timestamp Options - Include year, day, hour/minutes, seconds, don't include midnight is 2400, Array ID, 
-%                       Array Datalogger Format = Hour/Minutes and Seconds
-% 
-% 2.  Create a folder for the individual site.  The folder name needs to be preceded by the keyword "site".  E.g. for a
-% site named Playa the folder name is sitePlaya.  Place the .csv files within the site folder
-% 
-% 3.  Create a subfolder named output, this is where the output data will be stored
-% 
-% 4.  Create header files for each data table The syntax is <91>tableName<92>_header.dat (e.g. "Playa_1HZ_header.dat",
-% "Playa_20HZ_header.dat).  Note that <91>tableName<92> must be consistent with the .csv tableNames created in step 1.  The 
-% header file is a single line .dat, comma delimited file containing variable names and heights for all columns within
-% the respective data table.  The header file is 3 columns shorter than the .csv data file.  This is because UTESpac
-% immediately calculates the serial date numbers from the date vectors (columns 1 <96> 4) contained in the data tables.
-% The serial dates are stored in column 1 and columns 2 <96> 4 are deleted, thus becoming consistent with the header file.
-% The easiest way to create the header file is with Card Convert.  Create an ASCII T0A5 file, there is no need to run 
-% the whole binary file, simply stop the conversion immediately and only a few hundred lines will be created.  Open the 
-% file in a text editor and delete all lines outside of the variable headers (typically line 5).  The variable names
-% within the header and the sensor templates (defined on lines 155-169) must be consistent.  The template is used by
-% UTESpac to identify specific sensors in the header.  The rules for creating the template and header variable names
-% are:
-%   - The template and variable name are the exact same except the sensor height is replaced with the wildcard '*' in
-%   the template.  e.g. template = 'Ux_*', header variable name = 'Ux_0.5', 'Ux_10'
-%   - The sensor height must be the last numeric value in the header variable name - All sensors (with exception of
-%   solar and battery) need an associated height in meters - Heights within the header variable name at a given tower
-%   height need to exactly match. e.g. 'FW_5','Ux_5','RH_5'
-% 
-% 5.  If a global planar fit is used, a PFinfo structure, containing global planar fit coefficients, will be stored in
-% the site folder.  There is no need to do anything with it.  Note: For the Global Planar Fit, there must be 1 and only
-% 1 set of 5 minute, local planar fit data.  That is, the global planar fit will fail if there is
-% '5minAvg_LPF_linDetrend' and '5minAvg_LPF_constDetrend' in the output folder.  There must be one or the other (it 
-% doesn't matter which!).
-% 
-% 6.  Fill out the information section of the code (lines 56 - 116) and run the code.  A full example study is included
-% in UTESpac.zip
-% 
-% 7.  Use getData(), structFill() and structConcat() to produce complete (no missing days) datasets over the full
-% experiment.  See example
+% Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)
+% Created by: Derek Jensen, derek591@gmail.com
+% Updates to latest version by: Alexei Perelet, alexei.pere@gmail.com
+% Version 5.0
+% Version Date: 24 Feb 2019
+%
+% Steps for use:
+%
+% 1. Create .csv files with the Card Convert Program in Campbell Scientific's LoggerNet.  To do this, open the
+% “Destination File Options” box.  Select “Array Compatible CSV” under File Format.  If more than 3 days of turbulence
+% data exists, select the “Use Time” toggle and change the “Time Settings” Interval to 2 days.  Under “File Naming”,
+% check “TimeDate Filenames” and leave “Use Day of Year” unchecked.  If multiple binary files exist for each table,
+% check “Append to Last File”.  Finally, open “Array Compatible CSV Options”.  Under “Timestamp Options” all boxes
+% should be checked except “Midnight is 2400”.  Do not check “Include Array ID”.  Lastly, “Array Datalogger Format” with
+% “Hour/Minutes and Seconds” should be selected.  This will create .csv files with the date stored in the first 4
+% columns (YYYY DOY HHMM SS) of the data table and the date string stored in the filename.
+% “CSV_1341.Playa_1HZ_2012_10_10_0000.dat” and “CSV_1341.Playa_20HZ_2012_10_10_0000.dat” are example file names. UTESpac
+% will extract the year, month and day (hours and minutes can be different) from the filenames to identify tables that
+% belong together. UTESpac will create structures for each data table from midnight to midnight.  If data is missing
+% from tables, they will be populated with NaNs. If LoggerNet is not used to convert the data, the data tables can be
+% either comma or tab delimited, there should be no header at the top of the table, columns 1 – 4 must contain the date
+% in the following format: [YYYY DOY HHMM SS], finally datestrings must be contained in the file names in the following
+% format: ‘tableName’_YYYY_MM_DD where ‘tableName is a unique identifier for the table.
+%
+% 2.  The data tables should be placed in a folder with the keyword “site” placed before the site name.  e.g.
+% “sitePlayaFall”, “siteES5Fall”, “siteSagbrushSpring”.  UTESpac can be stored elsewhere.  Within the site folder, 4
+% items must be included:
+% 1) A folder labelled “output” where the output data is stored.
+% 2) siteInfo.m must be completed for the specific site.  siteInfo.m is included in UTESpac.zip
+% 3) A header file for each different table.  The syntax
+% is ‘tableName’_header.dat (e.g. “Playa_1HZ_header.dat”, “Playa_20HZ_header.dat”).  Note that ‘tableName’ must be
+% consistent with the .csv tableNames created in step 1.  The header file is a single line .dat, comma delimited file
+% containing variable names and heights for all columns within the respective data table.  The header file is 3 columns
+% shorter than the .csv data file.  This is because UTESpac immediately calculates the serial date numbers from the date
+% vectors (columns 1 – 4) contained in the data tables.  The serial dates are stored in column 1 and columns 2 – 4 are
+% deleted, thus becoming consistent with the header file.  The easiest way to create the header file is with Card
+% Convert.  Create an ASCII T0A5 file, there is no need to run the whole binary file, simply stop the conversion
+% immediately and only a few hundred lines will be created.  Open the file in a text editor and delete all lines outside
+% of the variable headers (typically line 5).  The variable names within the header and the sensor templates (defined on
+% lines 155-169) must be consistent.  The template is used by UTESpac to identify specific sensors in the header.  The
+% rules for creating the template and header variable names are:
+%   - The template and variable name are the exact same except the sensor height is omitted from the template.  e.g.
+%     template = 'Ux_', header variable name = 'Ux_0.5', 'Ux_10'
+%   - The sensor height must be placed at the end of the header variable name
+%   - All sensors (with exception of solar and battery) need an associated height in meters
+%   - Heights within the header variable name at a given tower height need to exactly match. e.g. 'FW_5','Ux_5','RH_5'
+% 4)  If a global planar fit is used, a PFinfo structure, containing global planar fit coefficients, will be stored in the site
+% folder.  There is no need to do anything with it.  Note: For the Global Planar Fit, there must be 1 and only 1 set of
+% 5 minute, local planar fit data.  That is, the global planar fit will fail if there is '5minAvg_LPF_linDetrend' and
+% '5minAvg_LPF_constDetrend' in the output folder.  There must be one or the other (it doesn't matter which!).
+%
+% 3.  Fill out the information section of the code (lines 56 - 116) and run the code.  A full example study is included in
+% UTESpac.zip
+%% ----------------------------------------------INFORMATION------------------------------------------------------------
 
-%% ----------------------------------------------USER INFORMATION-------------------------------------------------------
+close all; clearvars; clc;
 
 % current UTESpac Version
-info.UTESpacVersion = '4.0';
+info.UTESpacVersion = '5.0';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'C:\Users\derek\desktop\';
+info.rootFolder = 'G:\Alexei\Data\Airport_Wetlands\ECTowers';
 
 % enter averaging period in minutes.  Must yield an integer when dividied into 60 (e.g. 1, 2, 5, 10, 20, 30)
 info.avgPer = 5;
 
-% save QC'd raw data tables in .mat format
-info.saveRawConditionedData = true;
+% save QC'd raw tables (1 = yes, 0 = no)
+info.saveRawConditionedData = false;
+
+% save structure parameters for temperature and humidity
+info.saveStructParams = true;
 
 % save netCDF file
 info.saveNetCDF = false;
@@ -123,7 +119,7 @@ info.spikeTest.spikeDef.cup = 3.5;
 info.spikeTest.spikeDef.birdSpd = 3.5;
 info.spikeTest.spikeDef.otherInstrument = 5;
 
-% 2. absolute limits - NaN values outside of limits
+% 2. absolute limits.  Hard flag if single instance occurs over averaging period
 info.absoluteLimitsTest.u = [-50, 50]; % m/s
 info.absoluteLimitsTest.v = [-50, 50];
 info.absoluteLimitsTest.w = [-10, 10];
@@ -140,30 +136,31 @@ info.absoluteLimitsTest.birdSpd = [0 50];
 info.windDirectionTest.envelopeSize = 20;
 
 % 4. excessive NaN test
-info.nanTest.maxPercent = 55;
+info.nanTest.maxPercent = 52;
 
 % 5. diagnostic tests
 info.diagnosticTest.H2OminSignal = 0.7;
 info.diagnosticTest.CO2minSignal = 0.7;
-info.diagnosticTest.meanGasDiagnosticLimit = 0.1;
-info.diagnosticTest.meanSonicDiagnosticLimit = 50;
+%info.diagnosticTest.meanGasDiagnosticLimit = 0.1; %This seems arbitraty
+info.diagnosticTest.meanGasDiagnosticLimit = 10;
+info.diagnosticTest.meanSonicDiagnosticLimit = 256; %This seems arbitrary
 info.diagnosticTest.meanLiGasDiagnosticLimit = 220;  % Full strength is 255, less indicates problems.  See manual. 
 % ---
 
-% specify sensor templates that must match those found in the header files, place wild card (*) over sensor height [expected units]
+% SPECIFY SENSOR TEMPLATES [expected units]
 template.u = 'Ux_*'; % sonic u  --   [m/s]
 template.v = 'Uy_*'; % sonic v  --   [m/s]
 template.w = 'Uz_*'; % sonic w  --   [m/s]
 template.Tson = 'T_Sonic_*'; % sonic T  --   [C or K]
 template.sonDiagnostic = 'diagnostic_*'; % sonic diagnostic  --  [-]
-template.fw = 'FW_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
-template.RH = 'RH_*'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
-template.T = 'Temp_*'; % slow response temperature  --  [C]
+template.fw = 'fw_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
+template.RH = 'HMP_RH_*'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
+template.T = 'HMP_TC_*'; % slow response temperature  --  [C]
 template.P = 'Pressure_*'; % pressure  --  [kPa or mBar]
 template.irgaH2O = 'H2O_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [g/m^3]
-template.irgaH2OsigStrength = 'H2Osig_*'; % EC150 Signal Strength  --  [-]
+template.irgaH2OsigStrength = 'H2OSig_*'; % EC150 Signal Strength  --  [-]
 template.irgaCO2 = 'CO2_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [mg/m^3]
-template.irgaCO2sigStrength = 'CO2sig_*'; % EC150 Signal Strength  --  [-]
+template.irgaCO2sigStrength = 'CO2Sig_*'; % EC150 Signal Strength  --  [-]
 template.irgaGasDiag = 'gas_diag_*'; % EC150 gas (CO2 and H2O) diagnostic, 0-> Okay  --  [-]
 template.LiH2O = 'LiH2O_*'; % for use with Licor 7500.  WPL corrections applied  --  [mmol/mol]
 template.LiCO2 = 'LiCO2_*'; % for use with Licor 7500.  WPL corrections applied  --  [mmol/mol]
@@ -186,11 +183,17 @@ else
     PFinfo = [];
 end
 
+if info.saveStructParams
+    if ~info.saveRawConditionedData
+        fprintf('\nsaveRawConditionedData is required to save Structure Parameters.\nSet saveRawConditionedData = true\n');
+        info.saveRawConditionedData = true;
+    end
+end
+
 for i = 1:size(dataFiles,1)
-    try
         
         % load files
-        [data, dataInfo] = loadData(dataFiles(i,:),i,size(dataFiles,1),info,tableNames);
+        [data, dataInfo] = loadData(dataFiles(i,:, :),i,size(dataFiles,1),info,tableNames);
         
         % store serial date in column 1 of data tables and delete columns 2-4
         [data, dataInfo, info] = findSerialDate(data, dataInfo, info);
@@ -209,14 +212,13 @@ for i = 1:size(dataFiles,1)
 
         % find sensible heat flux, momentum flux, latent heat flux, CO2 flux
         [output, raw] = fluxes(data, rotatedSonicData, info, output, sensorInfo,tableNames);
+        
+        % find spatial structure function and structure params
+        if info.saveStructParams
+            [output , raw] = UTES_struct_setup(data, info, output, raw, tableNames, sensorInfo); %need to make work for multiple heights in same table
+        end
 
         % save data in the root folder
         output = saveData(info,output,dataInfo,headers, tableNames, raw, template);
-                
-    catch err
-        
-        warning('Problem with %s @ line %g:%s',dataFiles{i,1},err.stack(2,1).line, err.message)
-        
-    end
 end
 gong();

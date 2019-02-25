@@ -9,7 +9,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
     disp('Finding Global Planar Fit Coefficients (b0, b1, b2)')
     allSites = dir([info.rootFolder,filesep,'site*']); allSites = {allSites(:).name};
     siteNum = find(strcmp(allSites,info.siteFolder));
-    data = getData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0);
+    data = getUTESpacData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0);
     siteName = info.siteFolder(5:end);
 
     % find sonic heights
