@@ -12,7 +12,7 @@
 - Many error messages are obsolete and need to be made more user friendly
 - UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
 
-#### 5.0-5.1
+#### 5.0-5.1 BETA  
 - Allow user input of file format.
 - Allow user to specify table name to be different from 'Table name' in file format
 
