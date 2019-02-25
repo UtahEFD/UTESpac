@@ -65,8 +65,10 @@ info.rootFolder = 'G:\Alexei\Data\Airport_Wetlands\ECTowers';
 info.avgPer = 5;
 
 % save QC'd raw tables (1 = yes, 0 = no)
-% 1 in order to save structure parameters.
 info.saveRawConditionedData = false;
+
+% save structure parameters for temperature and humidity
+info.saveStructParams = true;
 
 % save netCDF file
 info.saveNetCDF = false;
@@ -181,6 +183,13 @@ else
     PFinfo = [];
 end
 
+if info.saveStructParams
+    if ~info.saveRawConditionedData
+        fprintf('\nsaveRawConditionedData is required to save Structure Parameters.\nSet saveRawConditionedData = true\n');
+        info.saveRawConditionedData = true;
+    end
+end
+
 for i = 1:size(dataFiles,1)
         
         % load files
@@ -205,7 +214,7 @@ for i = 1:size(dataFiles,1)
         [output, raw] = fluxes(data, rotatedSonicData, info, output, sensorInfo,tableNames);
         
         % find spatial structure function and structure params
-        if info.saveRawConditionedData
+        if info.saveStructParams
             [output , raw] = UTES_struct_setup(data, info, output, raw, tableNames, sensorInfo); %need to make work for multiple heights in same table
         end
 
