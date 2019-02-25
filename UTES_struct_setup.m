@@ -26,7 +26,7 @@ MinInst = min([NumSonic, NumIRGA]);
 %When Finewire does not exist
 %Eventually need a better system than this
 fields = fieldnames(sensorInfo);
-no_fw = ~any(cellfun(@(x) isempty(strcmp(x, 'fw')), fields));
+no_fw = ~any(cellfun(@(x) strcmp(x, 'fw'), fields));
 
 %%%%%%%%%%%%%
 
