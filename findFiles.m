@@ -96,17 +96,40 @@ for ii = 1:length(headers)
     csvDates = NaN(size(csvFiles));
     for jj = 1:length(tableFiles)
         tableFile = tableFiles(jj).name;
+
+        %Parse filename to get date
+        fileForm = regexp(tableFile, info.FileForm, 'names');
+
+        %Check if Day Hour Minutes exist
+        testString = {'Day', 'Hour', 'Minute', 'Second'};
+        fieldnames = fields(fileForm);
+        contentCheck = cell2mat(cellfun(@(x) strcmp(x, testString), fieldnames, 'UniformOutput', false));
+        
+        %Each filename must contain a Day
+        if ~any(contentCheck(:, 1))
+            error('File format needs to have at least Year, Month, and Day. Check input for fileForm and change file names if necessary');
+        end
+        
+        %If no Hour in filename, set to 0
+        if ~any(contentCheck(:, 2))
+            fileForm.Hour = '0';
+        end
+        %If no minutes in filename, set to 0
+        if ~any(contentCheck(:, 3))
+            fileForm.Minute = '0';
+        end
+
+        %If no minutes in filename, set to 0
+        if ~any(contentCheck(:, 4))
+            fileForm.Second = '0';
+        end
+        
         
         % place tableFile name in csvFiles cell
         csvFiles{jj} = tableFile;
         
-        % find location of date
-        dateBeginLoc = strfind(tableFiles(jj).name,tableName)+length(tableName);
-
         % parse date string to create date number
-        csvDates(jj) = datenum(str2double(tableFile(dateBeginLoc+1:dateBeginLoc+4)),str2double(tableFile(dateBeginLoc+6:dateBeginLoc+7)),... % year, month
-            str2double(tableFile(dateBeginLoc+9:dateBeginLoc+10)),str2double(tableFile(dateBeginLoc+12:dateBeginLoc+13)),... % day, hour
-            str2double(tableFile(dateBeginLoc+14:dateBeginLoc+15)),0); % minute, second
+        csvDates(jj) = datenum(str2double(fileForm.Year), str2double(fileForm.Month), str2double(fileForm.Day), str2double(fileForm.Hour), str2double(fileForm.Minute), str2double(fileForm.Second));
     end
     
     %Find Unique Days

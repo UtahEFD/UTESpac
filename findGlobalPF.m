@@ -4,7 +4,7 @@ function PFinfo = findGlobalPF(info,template,sensorInfo)
 % have already been run. 
 
 % check to see if PF needs to be calculate.  Else, load existing
-if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info.siteFolder,filesep,'pfInfo.mat'],'file')
+if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'file')
     % load data
     disp('Finding Global Planar Fit Coefficients (b0, b1, b2)')
     allSites = dir([info.rootFolder,filesep,'site*']); allSites = {allSites(:).name};
@@ -26,12 +26,12 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         
         % allow user to skip height
         skipFlag = input(sprintf('Skip %g m (1=no, 0=yes)',z(ii)));
-        if ~skipFlag && exist([info.rootFolder,filesep,info.siteFolder,filesep,'pfInfo.mat'],'file')
-            oldPFinfo = load([info.rootFolder,filesep,info.siteFolder,filesep,'pfInfo.mat']);
+        if ~skipFlag && exist([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'file')
+            oldPFinfo = load([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat']);
             PFinfo.(['cm_',num2str(round(z(ii)*100))]) = oldPFinfo.PFinfo.(['cm_',num2str(round(z(ii)*100))]);
             continue;
         elseif ~skipFlag 
-            disp('I couldn''t find an existing pfInfo.mat file so you cannot skip any levels')
+            disp('I couldn''t find an existing PFinfo.mat file so you cannot skip any levels')
         end
         
         % find variable name at ith height
@@ -121,7 +121,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         direction = mod(atan2(-1*vDir,uDir)*180/pi+bearing,360);
         
         % plot seasonal wind histogram and have user select sectors
-        figure('units','normalized','outerposition',[0 0 1 1])
+        figure('units','normalized','outerposition',[0 0 .5 .5])
         % histogram
         subplot(2,1,1)
         hist(direction,100)

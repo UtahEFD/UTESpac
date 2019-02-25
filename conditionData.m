@@ -78,7 +78,7 @@ for i = 1:numTables
         if min(noSpikeFlag(1:end-1)); continue; end;
         
         tic
-        if j==1; fprintf('\nDespiking table %g - %s',i,tableNames{i}); end
+        if j==1; fprintf('\nDespiking table %g - %s\n',i,tableNames{i}); end
         
         % iterate through date bins
         for k = 1:length(breakPoints)-2

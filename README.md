@@ -11,10 +11,16 @@
 #### To Do / Known Bugs  
 - Many error messages are obsolete and need to be made more user friendly
 - UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
+- Need to fix screen output when running days in parallel
 
 #### 5.0-5.1 BETA  
-- Allow user input of file format.
-- Allow user to specify table name to be different from 'Table name' in file format
+- Allow user input of file format so files other than default cardConvert will work
+- Split output folder into output(avgPer) and outputRAW. Makes data collection with getUTESpacData() easier
+- Fixed errors in findGlobalPF.m when looking for existing PFinfo file
+- Days now run in parallel
+#### Changes in progress  
+- Updated structure fill code to be cleaner
+
 
 #### 4.1-5.0  
 - Allow source CSV files to have multiple files per day.

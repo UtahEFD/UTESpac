@@ -1,5 +1,14 @@
 function csvSave(template,output,info)
 %try
+
+%Check if save directory exists
+outputDir = 'outputCSV';
+
+if ~exist([info.rootFolder, filesep, info.siteFolder, filesep, outputDir], 'dir')
+    fprintf('\n\tOutput directory does not exist: Creating output dicrectory.\n');
+    mkdir([info.rootFolder, filesep, info.siteFolder, filesep, outputDir]);
+end
+
 % find serial time stamp from sensible heat flux
 serialTime = output.H(:,1);
 
@@ -407,10 +416,9 @@ dataHeader(end+1:end+size(tau2,2)) = tau2Header;
 % create data array
 data = [date, P, rho, cp, LHflux, RH, T, Tson, Tfw, THfw, dir, spd, w, h1, h2, h3, h4, tke, tau1 tau2];
 
-
 % store header
 fileName2 = strcat(info.siteFolder(5:end),'_Header.csv');
-cell2csv(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName2),dataHeader)
+cell2csv(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName2),dataHeader)
 
 % store data in 24 hour blocks
 numRowsInDay = 24*60./info.avgPer;
@@ -428,16 +436,16 @@ if size(data,1) > numRowsInDay
     % Day 1
     data1 = data(1:numRowsInDay,:);
     fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',info.date,PFtype,detrendType,'.csv');
-    csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName),data1)
+    csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),data1)
     
     % Day 2
     data2 = data(numRowsInDay+1:end,:);
     date = datestr(datenum(info.date)+1,'yyyy_mm_dd');
     fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',date,PFtype,detrendType,'.csv');
-    csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName),data2)
+    csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),data2)
 else
     fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',info.date,PFtype,detrendType,'.csv');
-    csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName),data)
+    csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),data)
 end
 
 %catch err

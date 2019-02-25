@@ -46,7 +46,7 @@ avgPerOptionLocation = strcmp(varargin,'avgPer');
 if ~isempty(avgPerOptionLocation)
     avgPer = varargin{find(avgPerOptionLocation)+1};
 else
-    avgPer = '';
+    avgPer = input('Please input an Average Period or RAW: ', 's');
 end
 
 % find output file qualifier
@@ -54,20 +54,29 @@ qualifierOptionLocation = strcmp(varargin,'qualifier');
 if max(qualifierOptionLocation)
     qualifier = varargin{find(qualifierOptionLocation)+1};
 else
+    
     qualifier = '';
+end
+
+%
+outputDir = ['output', num2str(avgPer)];
+
+if ~exist([siteFolder,filesep,outputDir], 'dir')
+    error(['Cannot find directory:', char(13), [siteFolder,filesep,outputDir], char(13), 'Please check path.']);
 end
 
 % find possible output files of interest
 if isempty(varargin)
-    filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*.mat'));
+    filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,'*.mat'));
 else
     if ~isempty(qualifier)
         tmpName = ['*', qualifier];
     else
         tmpName = '';
     end
-    filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*_',num2str(avgPer),tmpName,'*.mat'));
+    filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,'*_',num2str(avgPer),tmpName,'*.mat'));
 end
+
 
 % find location of 'rows' option if it exists
 rowsOptionLocation = strcmp(varargin,'rows');
@@ -90,7 +99,7 @@ end
 
 % store output file name in outputFileNames cell
 for ii = 1:length(rows)
-    outputFileName{ii} = strcat(siteFolder,filesep,'output',filesep,filesStruct(rows(ii)).name);
+    outputFileName{ii} = strcat(siteFolder,filesep,outputDir,filesep,filesStruct(rows(ii)).name);
 end
 
 % iterate through all file names

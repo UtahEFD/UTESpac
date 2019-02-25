@@ -59,16 +59,21 @@ close all; clearvars; clc;
 info.UTESpacVersion = '5.0';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'G:\Alexei\Data\Airport_Wetlands\ECTowers';
+info.rootFolder = 'H:\Alexei\Data\Airport_Wetlands\DataBAD_USEForTest';
+
+% Enter regular expression for file form
+% fields of <Year>, <Month>, <Day> are required
+% <TableName> must match what is specified in siteinfo.m 
+info.FileForm = '(?<serial>\d+)[.](?<TableName>\w*)_(?<Year>\d{4})_(?<Month>\d{2})_(?<Day>\d{2})_(?<Hour>\d{2})(?<Minute>\d{2}).dat';
 
 % enter averaging period in minutes.  Must yield an integer when dividied into 60 (e.g. 1, 2, 5, 10, 20, 30)
-info.avgPer = 5;
+info.avgPer = 30;
 
 % save QC'd raw tables (1 = yes, 0 = no)
-info.saveRawConditionedData = false;
+info.saveRawConditionedData = true;
 
 % save structure parameters for temperature and humidity
-info.saveStructParams = false;
+info.saveStructParams = true;
 
 % save netCDF file
 info.saveNetCDF = false;
@@ -83,7 +88,7 @@ info.detrendingFormat = 'linear';
 % user-defined, multi-sector, multi-datebin coefficients from all site data - the sector and datebins are defined
 % graphically when the code is executed - for 'global' calculations, all data must first be run with a 'local' planar
 % fit and 5-min averaging
-info.PF.globalCalculation = 'local';
+info.PF.globalCalculation = 'global';
 
 % recalulate global PF coefficients if 'global' calculation is used
 info.PF.recalculateGlobalCoefficients = false;
@@ -190,13 +195,13 @@ if info.saveStructParams
     end
 end
 
-for i = 1:size(dataFiles,1)
-        
+numFiles = size(dataFiles, 1);
+parfor i = 1:numFiles
         % load files
-        [data, dataInfo] = loadData(dataFiles(i,:, :),i,size(dataFiles,1),info,tableNames);
+        [data, dataInfo] = loadData(dataFiles(i,:, :),i,numFiles,info,tableNames);
         
         % store serial date in column 1 of data tables and delete columns 2-4
-        [data, dataInfo, info] = findSerialDate(data, dataInfo, info);
+        [data, dataInfo, fileDate] = findSerialDate(data, dataInfo, info);
         
         % condition data
         [data, output] = conditionData(data,info,tableNames,template,headers);
@@ -219,6 +224,6 @@ for i = 1:size(dataFiles,1)
         end
 
         % save data in the root folder
-        output = saveData(info,output,dataInfo,headers, tableNames, raw, template);
+        output = saveData(info,output,dataInfo,tableNames, raw, template, fileDate);
 end
 gong();
