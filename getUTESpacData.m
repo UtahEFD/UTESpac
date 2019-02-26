@@ -21,7 +21,7 @@ sitesStruct = dir(strcat(rootFolder,filesep,'site*'));
 
 % find location of 'site' option if it exists
 siteOptionLocation = strcmp(varargin,'site');
-if isempty(siteOptionLocation) % if 'site' option not used, display all sites
+if ~any(siteOptionLocation) % if 'site' option not used, display all sites
     % display possible sites to command window
     for ii = 1:length(sitesStruct)
         display(sprintf('%g. %s',ii,sitesStruct(ii).name));
@@ -43,7 +43,7 @@ siteFolder = strcat(rootFolder,filesep,site);
 
 % find output file avgPer
 avgPerOptionLocation = strcmp(varargin,'avgPer');
-if ~isempty(avgPerOptionLocation)
+if any(avgPerOptionLocation)
     avgPer = varargin{find(avgPerOptionLocation)+1};
 else
     avgPer = input('Please input an Average Period or RAW: ', 's');
@@ -51,10 +51,9 @@ end
 
 % find output file qualifier
 qualifierOptionLocation = strcmp(varargin,'qualifier');
-if max(qualifierOptionLocation)
+if any(qualifierOptionLocation)
     qualifier = varargin{find(qualifierOptionLocation)+1};
 else
-    
     qualifier = '';
 end
 
@@ -80,7 +79,7 @@ end
 
 % find location of 'rows' option if it exists
 rowsOptionLocation = strcmp(varargin,'rows');
-if ~isempty(rowsOptionLocation)
+if any(rowsOptionLocation)
     rows = varargin{find(rowsOptionLocation)+1};
 else
     % display possible output files to command window

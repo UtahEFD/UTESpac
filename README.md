@@ -13,7 +13,7 @@
 - UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
 - Need to fix screen output when running days in parallel
 
-#### 5.0-5.1 BETA  
+#### 5.1 BETA  
 - Allow user input of file format so files other than default cardConvert will work
 - Split output folder into output(avgPer) and outputRAW. Makes data collection with getUTESpacData() easier
 - Fixed errors in findGlobalPF.m when looking for existing PFinfo file
@@ -22,7 +22,7 @@
 - Updated structure fill code to be cleaner
 
 
-#### 4.1-5.0  
+#### 5.0  
 - Allow source CSV files to have multiple files per day.
 - Added calculations for 2nd order structure function for temperature and humidity
 - Data output directory will now be automatically created if it does not exist
@@ -30,7 +30,7 @@
 - Changed some function names so they do not coincide with built in matlab functions
 
 #### 1.0-4.1  
-- I do not have this information
+- No information
 
 ***
 ### About:
