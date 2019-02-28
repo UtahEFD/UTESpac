@@ -8,7 +8,8 @@ info.sonicOrientation = [25];
 % enter manufacturer of SAT.  1 for Campbell, 0 for RMYoung.  RMYoung v = Campbell u!
 info.sonicManufact = [1];  % ES5
 
-% enter orientation of tower relative to sonic head
+% enter orientation of tower relative to sonic head. One Value for Each
+% Sonic
 info.tower = 150;
 
 % tower elevation

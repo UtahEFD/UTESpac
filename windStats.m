@@ -3,16 +3,16 @@ function output = windStats(output,sensorInfo,tableNames,info)
 % find number sonic info
 if isfield(sensorInfo,'u')
     numSonics = size(sensorInfo.u,1);
-    towerBearing = info.tower;
+    
     windEnvelope = info.windDirectionTest.envelopeSize;
     
     % create warning field within output to store warning messages
     output.warnings = cell(1);
     
     for ii = 1:numSonics
-        try
             tble = sensorInfo.u(ii,1);
             bearing = sensorInfo.u(ii,4);
+            towerBearing = info.tower(ii);
             sonHeight = sensorInfo.u(ii,3);
             uCol = sensorInfo.u(sensorInfo.u(:,3)==sonHeight,2);
             vCol = sensorInfo.v(sensorInfo.v(:,3)==sonHeight,2);
@@ -58,13 +58,5 @@ if isfield(sensorInfo,'u')
             output.spdAndDirHeader{ii*3-1} = sprintf('%gm direction',sonHeight);
             output.spdAndDirHeader{ii*3} = sprintf('%gm speed',sonHeight);
             output.spdAndDirHeader{ii*3+1} = sprintf('%gm flag %g<dir<%g',sonHeight,minAngle,maxAngle);
-        catch err
-            message = strcat(err.message,'@ line',num2str(err.stack.line),' Unable to find wind direction and speed at:',num2str(sonHeight));
-            warning(message)
-            if isempty(output.warnings{1})
-                output.warnings{1,1} = message;
-            else output.warnings{end+1,1} = message;
-            end
-        end
     end
 end

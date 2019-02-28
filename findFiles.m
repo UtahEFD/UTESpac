@@ -60,7 +60,7 @@ for ii = 1:length(headers)
             else % if digitsAndDecimals has multiple values, use diff to find consecutive locations, 
                  % last chunk of consecutive locations must be the height locations
                 heightBeginMarker = find(diff(digitAndDecimalLocations) > 1,1,'last');
-                if isempty(heightBeginMarker);
+                if isempty(heightBeginMarker)
                     heightBeginMarker = 0;
                 end
                 heightLocations = digitAndDecimalLocations(heightBeginMarker+1:end);
@@ -134,16 +134,25 @@ for ii = 1:length(headers)
     
     %Find Unique Days
     [a, ind] = unique(floor(csvDates));
+    ind(end+1) = length(csvDates);
     
     % place csv files in cell matrix where the row is determined by the date
     if ii == 1
         dateBegin = floor(min(csvDates)-20); % all tables must begin and end within 20 days of first and last dates of table1
         dateEnd = floor(max(csvDates)+20);
-        dataFiles = cell(dateEnd-dateBegin,length(headers), round(max(diff(ind))/10)*10);
+        if length(ind)==2
+            dataFiles = cell(1,length(headers));
+        else
+            dataFiles = cell(dateEnd-dateBegin,length(headers), round(max(diff(ind))/10)*10);
+        end
     end
-    for jj = 1:(length(ind)-1)
-        for qq=1:length(ind(jj):ind(jj+1)-1)
-            dataFiles{floor(a(jj))-dateBegin,ii, qq} = csvFiles{ind(jj)+qq-1};
+    if length(ind)==2
+        dataFiles{1, ii} = csvFiles{1};
+    else
+        for jj = 1:(length(ind)-1)
+            for qq=1:length(ind(jj):ind(jj+1)-1)
+                dataFiles{a(jj)-dateBegin,ii, qq} = csvFiles{ind(jj)+qq-1};
+            end
         end
     end
 end

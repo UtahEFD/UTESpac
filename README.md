@@ -20,6 +20,7 @@
 - Days now run in parallel
 #### Changes in progress  
 - Updated structure fill code to be cleaner
+- Allow ignoring of Data Tables
 
 
 #### 5.0  

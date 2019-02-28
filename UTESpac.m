@@ -1,8 +1,8 @@
 % Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)
 % Created by: Derek Jensen, derek591@gmail.com
 % Updates to latest version by: Alexei Perelet, alexei.pere@gmail.com
-% Version 5.0
-% Version Date: 24 Feb 2019
+% Version 5.1
+% Version Date: 27 Feb 2019
 %
 % Steps for use:
 %
@@ -56,10 +56,10 @@
 close all; clearvars; clc;
 
 % current UTESpac Version
-info.UTESpacVersion = '5.0';
+info.UTESpacVersion = '5.1';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'H:\Alexei\Data\Airport_Wetlands\DataBAD_USEForTest';
+info.rootFolder = 'G:\MY DOCUMENTS\Users\Alexei\Desktop';
 
 % Enter regular expression for file form
 % fields of <Year>, <Month>, <Day> are required
@@ -67,13 +67,13 @@ info.rootFolder = 'H:\Alexei\Data\Airport_Wetlands\DataBAD_USEForTest';
 info.FileForm = '(?<serial>\d+)[.](?<TableName>\w*)_(?<Year>\d{4})_(?<Month>\d{2})_(?<Day>\d{2})_(?<Hour>\d{2})(?<Minute>\d{2}).dat';
 
 % enter averaging period in minutes.  Must yield an integer when dividied into 60 (e.g. 1, 2, 5, 10, 20, 30)
-info.avgPer = 30;
+info.avgPer = 5;
 
 % save QC'd raw tables (1 = yes, 0 = no)
 info.saveRawConditionedData = true;
 
 % save structure parameters for temperature and humidity
-info.saveStructParams = true;
+info.saveStructParams = false;
 
 % save netCDF file
 info.saveNetCDF = false;
@@ -88,7 +88,7 @@ info.detrendingFormat = 'linear';
 % user-defined, multi-sector, multi-datebin coefficients from all site data - the sector and datebins are defined
 % graphically when the code is executed - for 'global' calculations, all data must first be run with a 'local' planar
 % fit and 5-min averaging
-info.PF.globalCalculation = 'global';
+info.PF.globalCalculation = 'local';
 
 % recalulate global PF coefficients if 'global' calculation is used
 info.PF.recalculateGlobalCoefficients = false;
@@ -157,10 +157,10 @@ template.u = 'Ux_*'; % sonic u  --   [m/s]
 template.v = 'Uy_*'; % sonic v  --   [m/s]
 template.w = 'Uz_*'; % sonic w  --   [m/s]
 template.Tson = 'T_Sonic_*'; % sonic T  --   [C or K]
-template.sonDiagnostic = 'diagnostic_*'; % sonic diagnostic  --  [-]
+template.sonDiagnostic = 'sonic_diag_*'; % sonic diagnostic  --  [-]
 template.fw = 'fw_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
 template.RH = 'HMP_RH_*'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
-template.T = 'HMP_TC_*'; % slow response temperature  --  [C]
+template.T = 'HMP_T_*'; % slow response temperature  --  [C]
 template.P = 'Pressure_*'; % pressure  --  [kPa or mBar]
 template.irgaH2O = 'H2O_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [g/m^3]
 template.irgaH2OsigStrength = 'H2OSig_*'; % EC150 Signal Strength  --  [-]
@@ -196,7 +196,7 @@ if info.saveStructParams
 end
 
 numFiles = size(dataFiles, 1);
-parfor i = 1:numFiles
+for i = 1:numFiles
         % load files
         [data, dataInfo] = loadData(dataFiles(i,:, :),i,numFiles,info,tableNames);
         
