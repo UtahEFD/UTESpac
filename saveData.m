@@ -1,6 +1,11 @@
 function output = saveData(info,output,dataInfo,headers,tableNames, rawFlux, template)
 % saveData saves output data in the site folder withinn the root folder
 display('saving data');
+
+if ~exist([info.rootFolder, filesep, info.siteFolder, filesep, 'output'], 'dir')
+    fprintf('\n\tOutput directory does not exist: Creating output dicrectory.\n');
+    mkdir([info.rootFolder, filesep, info.siteFolder, filesep, 'output']);
+end
 % include dataInfo and headers in output folder
 output.dataInfo = dataInfo;
 output.tableNames = tableNames;
