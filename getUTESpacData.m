@@ -58,7 +58,11 @@ else
 end
 
 %
-outputDir = ['output', num2str(avgPer)];
+if ischar(avgPer)
+    outputDir = ['output', avgPer];
+else
+    outputDir = ['output', num2str(avgPer)];
+    end
 
 if ~exist([siteFolder,filesep,outputDir], 'dir')
     error(['Cannot find directory:', char(13), [siteFolder,filesep,outputDir], char(13), 'Please check path.']);
@@ -73,7 +77,7 @@ else
     else
         tmpName = '';
     end
-    filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,'*_',num2str(avgPer),tmpName,'*.mat'));
+    filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,tmpName,'*.mat'));
 end
 
 
@@ -90,6 +94,9 @@ else
     
     % ask user to select appropriate outputfiles
     rows = input('Plese input dates of interest. e.g. [1 3 4:7] or ''0'' for all dates: ');clc;
+    if isempty(rows)
+        rows = 0;
+    end
 end
 % if '0' input, make rows of interest equal to all possible dates
 if rows == 0
@@ -130,8 +137,12 @@ for ii = 1:numel(outputFileName)
     if isfield(output,'tableNames')  % use averaged tables for avg data
         standardField = 'tableNames';
         numStandardFields = numel(output.(standardField));
-    elseif isfield(output,'t') % use time stams for raw data
-        standardField = 't';
+    elseif or(isfield(output,'t'), isfield(output, 'time')) % use time stams for raw data
+        if isfield(output,'t')
+            standardField = 't';
+        else
+            standardField = 'time';
+        end
         numStandardFields = 1;
     end
    
@@ -142,7 +153,7 @@ for ii = 1:numel(outputFileName)
             catch err
                error('Problem loading %s output structure: %s',outputFileName{ii},err.message)
             end
-        elseif strcmp(standardField,'t')
+        elseif or(strcmp(standardField,'t'), strcmp(standardField,'time'))
             numRows(jj) = size(output.(standardField),1);
         end
     end

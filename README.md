@@ -18,6 +18,10 @@
 - Split output folder into output(avgPer) and outputRAW. Makes data collection with getUTESpacData() easier
 - Fixed errors in findGlobalPF.m when looking for existing PFinfo file
 - Days now run in parallel
+- Fixed issue with loading only 1 day of data
+- Updated Tower Wind sector to vary for each sonic
+- Fixed issue with finding tables if table names were identical except at the end (e.g. FastResponse & FastResponse2)
+
 #### Changes in progress  
 - Updated structure fill code to be cleaner
 - Allow ignoring of Data Tables

@@ -59,7 +59,7 @@ close all; clearvars; clc;
 info.UTESpacVersion = '5.1';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'G:\MY DOCUMENTS\Users\Alexei\Desktop';
+info.rootFolder = 'H:\Alexei\Data\C-FOG\Data\Ferryland - Battery';
 
 % Enter regular expression for file form
 % fields of <Year>, <Month>, <Day> are required
@@ -67,7 +67,7 @@ info.rootFolder = 'G:\MY DOCUMENTS\Users\Alexei\Desktop';
 info.FileForm = '(?<serial>\d+)[.](?<TableName>\w*)_(?<Year>\d{4})_(?<Month>\d{2})_(?<Day>\d{2})_(?<Hour>\d{2})(?<Minute>\d{2}).dat';
 
 % enter averaging period in minutes.  Must yield an integer when dividied into 60 (e.g. 1, 2, 5, 10, 20, 30)
-info.avgPer = 5;
+info.avgPer = 30;
 
 % save QC'd raw tables (1 = yes, 0 = no)
 info.saveRawConditionedData = true;
@@ -79,7 +79,7 @@ info.saveStructParams = false;
 info.saveNetCDF = false;
 
 % save .csv files
-info.saveCSV = false;
+info.saveCSV = true;
 
 % enter detrending format ('constant' or 'linear')
 info.detrendingFormat = 'linear';

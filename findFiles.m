@@ -91,6 +91,24 @@ for ii = 1:length(headers)
     % eliminate the header file from the list
     tableFiles(~cellfun(@isempty,strfind({tableFiles(:).name},'header'))) = [];
     
+    %In case of similar table names, omit wrong table names
+    clearvars nameFlag
+    for kk = 1:length(tableFiles)
+        tableFile = tableFiles(kk).name;
+
+        %Parse filename to get date
+        fileForm = regexp(tableFile, info.FileForm, 'names');
+        
+        nameCheck = strcmp(fileForm.TableName, tableName);
+        if nameCheck
+            nameFlag(kk) = true;
+        else
+            nameFlag(kk) = false;
+        end
+    end
+    tableFiles = tableFiles(nameFlag);
+    
+    
     % sort and store csv files in csvFilesCell
     csvFiles = cell(length(tableFiles),1);  %preallocate for speed
     csvDates = NaN(size(csvFiles));
@@ -99,7 +117,7 @@ for ii = 1:length(headers)
 
         %Parse filename to get date
         fileForm = regexp(tableFile, info.FileForm, 'names');
-
+        
         %Check if Day Hour Minutes exist
         testString = {'Day', 'Hour', 'Minute', 'Second'};
         fieldnames = fields(fileForm);
@@ -157,9 +175,9 @@ for ii = 1:length(headers)
     end
 end
 % check cell matrix for empty rows and delete them
-dataFilesFlag = logical(sum(sum(cellfun(@isempty,dataFiles),3)==size(dataFiles, 3), 2));
+dataFilesFlag = any((sum(cellfun(@isempty,dataFiles),3)==size(dataFiles, 3))==0, 2);
 
-dataFiles = dataFiles(~dataFilesFlag, :, :);
+dataFiles = dataFiles(dataFilesFlag, :, :);
 
 % ask user to select which dates to calculate
 displayCell = cell(size(dataFiles,1),size(dataFiles,2)+1);
