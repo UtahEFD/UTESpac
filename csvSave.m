@@ -69,8 +69,9 @@ Theader = {nan};
 zT = nan;
 for i = 1:length(output.tableNames)
     RHtemplate = template.RH;
+    Ttemplate = template.T;
     RHcol = find(strncmpi(output.([output.tableNames{i},'Header'])(1,:),RHtemplate,3)==1);
-    Tcol = RHcol - 1;
+    Tcol = find(strncmpi(output.([output.tableNames{i},'Header'])(1,:),Ttemplate,3)==1);
     RHtble = i;
     if RHcol
         % break
@@ -435,16 +436,16 @@ end
 if size(data,1) > numRowsInDay
     % Day 1
     data1 = data(1:numRowsInDay,:);
-    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',info.date,PFtype,detrendType,'.csv');
+    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',datestr(output.H(1,1), 'yyyy_mm_dd'),PFtype,detrendType,'.csv');
     csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),data1)
     
     % Day 2
     data2 = data(numRowsInDay+1:end,:);
     date = datestr(datenum(info.date)+1,'yyyy_mm_dd');
-    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',date,PFtype,detrendType,'.csv');
+    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',datestr(output.H(numRowsInDay+1,1), 'yyyy_mm_dd'),PFtype,detrendType,'.csv');
     csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),data2)
 else
-    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',info.date,PFtype,detrendType,'.csv');
+    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',datestr(output.H(1,1), 'yyyy_mm_dd'),PFtype,detrendType,'.csv');
     csvwrite(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),data)
 end
 

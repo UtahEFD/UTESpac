@@ -23,6 +23,8 @@ run(strcat(siteFolder,filesep,'siteInfo.m'));
 % find headers for selected site
 headers = dir(strcat(siteFolder,filesep,'*header.*'));
 
+
+
 if isempty(headers)
     error('Unable to Find Table Headers!  Check format of header name.')
 end
@@ -30,6 +32,20 @@ end
 % iterate through headers and store .csv files in csvFileStruct
 for ii = 1:length(headers)
     currentHeaderFileName = headers(ii).name;
+    
+    % Ignore Tables
+    if any(cell2mat(cellfun(@(x) ~isempty(strfind(currentHeaderFileName, x)), info.TableIgnore, 'UniformOutput', 0)))
+        fprintf(['\n---------------------\nSkipping files associated with: ',...
+            currentHeaderFileName, '\n---------------------\n']);
+        ignoreFlag(ii) = 1;
+        pause(1)
+        continue
+    else
+        ignoreFlag(ii) = 0;
+    end
+
+    
+    
     try
         % find current header array
         headerFile = fopen(strcat(info.rootFolder,filesep,site,filesep,currentHeaderFileName));
@@ -174,6 +190,13 @@ for ii = 1:length(headers)
         end
     end
 end
+
+%Remove Ignored tables
+headersCell = headersCell(~ignoreFlag);
+dataFiles = dataFiles(:, ~ignoreFlag, :);
+tableNames = tableNames(~ignoreFlag);
+
+
 % check cell matrix for empty rows and delete them
 dataFilesFlag = any((sum(cellfun(@isempty,dataFiles),3)==size(dataFiles, 3))==0, 2);
 

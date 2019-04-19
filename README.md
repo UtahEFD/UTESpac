@@ -1,17 +1,17 @@
 # Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
 **Created by:** Derek Jensen (<derek591@gmail.com>) and Eric Pardyjak  
 **Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)  
-**Version:** 5.0  
-**Version Date:** 24 Feb 2019
+**Version:** 5.1 Beta  
+**Version Date:** 18 Apr 2019
 
 ## NOTE: This readme needs to be updated  
 ***
 ### Version History  
 
 #### To Do / Known Bugs  
-- Many error messages are obsolete and need to be made more user friendly
-- UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
-- Need to fix screen output when running days in parallel
+- Many error messages are obsolete and need to be made more user friendly.
+- UTES_struct_setup.m might still fail for certain file formats. Needs more testing.
+- Screen output not linear when running in parallel
 
 #### 5.1 BETA  
 - Allow user input of file format so files other than default cardConvert will work
@@ -21,10 +21,10 @@
 - Fixed issue with loading only 1 day of data
 - Updated Tower Wind sector to vary for each sonic
 - Fixed issue with finding tables if table names were identical except at the end (e.g. FastResponse & FastResponse2)
+- Allow user to ignore specific table names in directory
 
 #### Changes in progress  
 - Updated structure fill code to be cleaner
-- Allow ignoring of Data Tables
 
 
 #### 5.0  
