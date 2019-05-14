@@ -7,32 +7,32 @@
 % Steps for use:
 %
 % 1. Create .csv files with the Card Convert Program in Campbell Scientific's LoggerNet.  To do this, open the
-% “Destination File Options” box.  Select “Array Compatible CSV” under File Format.  If more than 3 days of turbulence
-% data exists, select the “Use Time” toggle and change the “Time Settings” Interval to 2 days.  Under “File Naming”,
-% check “TimeDate Filenames” and leave “Use Day of Year” unchecked.  If multiple binary files exist for each table,
-% check “Append to Last File”.  Finally, open “Array Compatible CSV Options”.  Under “Timestamp Options” all boxes
-% should be checked except “Midnight is 2400”.  Do not check “Include Array ID”.  Lastly, “Array Datalogger Format” with
-% “Hour/Minutes and Seconds” should be selected.  This will create .csv files with the date stored in the first 4
+% ï¿½Destination File Optionsï¿½ box.  Select ï¿½Array Compatible CSVï¿½ under File Format.  If more than 3 days of turbulence
+% data exists, select the ï¿½Use Timeï¿½ toggle and change the ï¿½Time Settingsï¿½ Interval to 2 days.  Under ï¿½File Namingï¿½,
+% check ï¿½TimeDate Filenamesï¿½ and leave ï¿½Use Day of Yearï¿½ unchecked.  If multiple binary files exist for each table,
+% check ï¿½Append to Last Fileï¿½.  Finally, open ï¿½Array Compatible CSV Optionsï¿½.  Under ï¿½Timestamp Optionsï¿½ all boxes
+% should be checked except ï¿½Midnight is 2400ï¿½.  Do not check ï¿½Include Array IDï¿½.  Lastly, ï¿½Array Datalogger Formatï¿½ with
+% ï¿½Hour/Minutes and Secondsï¿½ should be selected.  This will create .csv files with the date stored in the first 4
 % columns (YYYY DOY HHMM SS) of the data table and the date string stored in the filename.
-% “CSV_1341.Playa_1HZ_2012_10_10_0000.dat” and “CSV_1341.Playa_20HZ_2012_10_10_0000.dat” are example file names. UTESpac
+% ï¿½CSV_1341.Playa_1HZ_2012_10_10_0000.datï¿½ and ï¿½CSV_1341.Playa_20HZ_2012_10_10_0000.datï¿½ are example file names. UTESpac
 % will extract the year, month and day (hours and minutes can be different) from the filenames to identify tables that
 % belong together. UTESpac will create structures for each data table from midnight to midnight.  If data is missing
 % from tables, they will be populated with NaNs. If LoggerNet is not used to convert the data, the data tables can be
-% either comma or tab delimited, there should be no header at the top of the table, columns 1 – 4 must contain the date
+% either comma or tab delimited, there should be no header at the top of the table, columns 1 ï¿½ 4 must contain the date
 % in the following format: [YYYY DOY HHMM SS], finally datestrings must be contained in the file names in the following
-% format: ‘tableName’_YYYY_MM_DD where ‘tableName is a unique identifier for the table.
+% format: ï¿½tableNameï¿½_YYYY_MM_DD where ï¿½tableName is a unique identifier for the table.
 %
-% 2.  The data tables should be placed in a folder with the keyword “site” placed before the site name.  e.g.
-% “sitePlayaFall”, “siteES5Fall”, “siteSagbrushSpring”.  UTESpac can be stored elsewhere.  Within the site folder, 4
+% 2.  The data tables should be placed in a folder with the keyword ï¿½siteï¿½ placed before the site name.  e.g.
+% ï¿½sitePlayaFallï¿½, ï¿½siteES5Fallï¿½, ï¿½siteSagbrushSpringï¿½.  UTESpac can be stored elsewhere.  Within the site folder, 4
 % items must be included:
-% 1) A folder labelled “output” where the output data is stored.
+% 1) A folder labelled ï¿½outputï¿½ where the output data is stored.
 % 2) siteInfo.m must be completed for the specific site.  siteInfo.m is included in UTESpac.zip
 % 3) A header file for each different table.  The syntax
-% is ‘tableName’_header.dat (e.g. “Playa_1HZ_header.dat”, “Playa_20HZ_header.dat”).  Note that ‘tableName’ must be
+% is ï¿½tableNameï¿½_header.dat (e.g. ï¿½Playa_1HZ_header.datï¿½, ï¿½Playa_20HZ_header.datï¿½).  Note that ï¿½tableNameï¿½ must be
 % consistent with the .csv tableNames created in step 1.  The header file is a single line .dat, comma delimited file
 % containing variable names and heights for all columns within the respective data table.  The header file is 3 columns
 % shorter than the .csv data file.  This is because UTESpac immediately calculates the serial date numbers from the date
-% vectors (columns 1 – 4) contained in the data tables.  The serial dates are stored in column 1 and columns 2 – 4 are
+% vectors (columns 1 ï¿½ 4) contained in the data tables.  The serial dates are stored in column 1 and columns 2 ï¿½ 4 are
 % deleted, thus becoming consistent with the header file.  The easiest way to create the header file is with Card
 % Convert.  Create an ASCII T0A5 file, there is no need to run the whole binary file, simply stop the conversion
 % immediately and only a few hundred lines will be created.  Open the file in a text editor and delete all lines outside
@@ -59,9 +59,9 @@ close all; clearvars; clc;
 info.UTESpacVersion = '5.1';
 
 % enter root folder where site* folders are located
-info.rootFolder = 'H:\Alexei\Data\C-FOG\Data\Ferryland - Battery';
-
-% Enter regular expression for file form
+%info.rootFolder = 'H:\Alexei\Data\C-FOG\Data\Ferryland - Battery';
+info.rootFolder = '/uufs/chpc.utah.edu/common/home/hoch-group2/CFOG/Blackhead_10m_RAWCSV';
+% Enter regular expression for file for
 % fields of <Year>, <Month>, <Day> are required
 % <TableName> must match what is specified in siteinfo.m 
 info.FileForm = '(?<serial>\d+)[.](?<TableName>\w*)_(?<Year>\d{4})_(?<Month>\d{2})_(?<Day>\d{2})_(?<Hour>\d{2})(?<Minute>\d{2}).dat';
@@ -73,13 +73,13 @@ info.avgPer = 30;
 info.saveRawConditionedData = true;
 
 % save structure parameters for temperature and humidity
-info.saveStructParams = false;
+info.saveStructParams = true;
 
 % save netCDF file
 info.saveNetCDF = false;
 
 % save .csv files
-info.saveCSV = true;
+info.saveCSV = false;
 
 % enter detrending format ('constant' or 'linear')
 info.detrendingFormat = 'linear';

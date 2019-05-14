@@ -1,4 +1,4 @@
-# Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
+ Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
 **Created by:** Derek Jensen (<derek591@gmail.com>) and Eric Pardyjak  
 **Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)  
 **Version:** 5.1 Beta  
@@ -22,6 +22,7 @@
 - Updated Tower Wind sector to vary for each sonic
 - Fixed issue with finding tables if table names were identical except at the end (e.g. FastResponse & FastResponse2)
 - Allow user to ignore specific table names in directory
+- Fixed issue with loading times with missing data tables
 
 #### Changes in progress  
 - Updated structure fill code to be cleaner
