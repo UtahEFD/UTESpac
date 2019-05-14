@@ -1,8 +1,8 @@
  Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
 **Created by:** Derek Jensen (<derek591@gmail.com>) and Eric Pardyjak  
 **Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)  
-**Version:** 5.1 Beta  
-**Version Date:** 18 Apr 2019
+**Version:** 5.1  
+**Version Date:** 14 May 2019
 
 ## NOTE: This readme needs to be updated  
 ***
@@ -14,7 +14,10 @@
 - Screen output not linear when running in parallel
 - parfor in UTESpac.m sometimes gives spurious errors. Do not happen with regular for loop.
 
-#### 5.1 BETA  
+#### Changes in progress
+- Updated structure fill code to be cleaner
+
+#### 5.1  
 - Allow user input of file format so files other than default cardConvert will work
 - Split output folder into output(avgPer) and outputRAW. Makes data collection with getUTESpacData() easier
 - Fixed errors in findGlobalPF.m when looking for existing PFinfo file
@@ -25,10 +28,6 @@
 - Allow user to ignore specific table names in directory
 - Fixed issue with loading times with missing data tables
 - Sometimes parfor does not work. Gives errors. Use regular for loop in UTESpac.m when that happens.
-
-#### Changes in progress  
-- Updated structure fill code to be cleaner
-
 
 #### 5.0  
 - Allow source CSV files to have multiple files per day.
