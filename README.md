@@ -3,8 +3,7 @@
 **Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)  
 **Version:** 5.1  
 **Version Date:** 14 May 2019
-
-## NOTE: This readme needs to be updated  
+ 
 ***
 ### Version History  
 
