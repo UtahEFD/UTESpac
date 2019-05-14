@@ -73,7 +73,7 @@ info.avgPer = 30;
 info.saveRawConditionedData = true;
 
 % save structure parameters for temperature and humidity
-info.saveStructParams = true;
+info.saveStructParams = false;
 
 % save netCDF file
 info.saveNetCDF = false;
@@ -196,6 +196,7 @@ if info.saveStructParams
 end
 
 numFiles = size(dataFiles, 1);
+%parfor i = 1:numFiles %For some reason parfor sometimes gives random errors. Run with regular for loop at that point
 for i = 1:numFiles
         % load files
         [data, dataInfo] = loadData(dataFiles(i,:, :),i,numFiles,info,tableNames);

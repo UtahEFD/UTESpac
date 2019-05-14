@@ -12,6 +12,7 @@
 - Many error messages are obsolete and need to be made more user friendly.
 - UTES_struct_setup.m might still fail for certain file formats. Needs more testing.
 - Screen output not linear when running in parallel
+- parfor in UTESpac.m sometimes gives spurious errors. Do not happen with regular for loop.
 
 #### 5.1 BETA  
 - Allow user input of file format so files other than default cardConvert will work
@@ -23,6 +24,7 @@
 - Fixed issue with finding tables if table names were identical except at the end (e.g. FastResponse & FastResponse2)
 - Allow user to ignore specific table names in directory
 - Fixed issue with loading times with missing data tables
+- Sometimes parfor does not work. Gives errors. Use regular for loop in UTESpac.m when that happens.
 
 #### Changes in progress  
 - Updated structure fill code to be cleaner
