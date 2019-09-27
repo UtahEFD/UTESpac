@@ -26,6 +26,9 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         
         % allow user to skip height
         skipFlag = input(sprintf('Skip %g m (1=no, 0=yes)',z(ii)));
+        if isempty(skipFlag)
+            skipFlag=1;
+        end
         if ~skipFlag && exist([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'file')
             oldPFinfo = load([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat']);
             PFinfo.(['cm_',num2str(round(z(ii)*100))]) = oldPFinfo.PFinfo.(['cm_',num2str(round(z(ii)*100))]);
@@ -43,9 +46,11 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         % find table containing variable names
         flag = [];
         for j = 1:length(tableNames)
-            flag = sum(strcmp(data.(strcat(tableNames{j},'Header'))(1,:),varName_u));
-            localSonicTable = tableNames{j};
-            if flag
+            flag = sum(cell2mat(strfind(data.(strcat(tableNames{j},'Header'))(1,:),varName_u)));
+            if flag>1
+               error(['Variable ' varName_u, ' appears more than once in ', tableNames{j}, char(10), 'Check header file and variable template']);            
+            elseif flag==1
+                localSonicTable = tableNames{j};
                 break
             end
         end
