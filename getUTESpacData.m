@@ -57,12 +57,26 @@ else
     qualifier = '';
 end
 
-%
-if ischar(avgPer)
-    outputDir = ['output', avgPer];
+% find output folder type
+foldFormatOptionLocation = strcmp(varargin,'foldFormat');
+if any(foldFormatOptionLocation)
+    foldFormat = varargin{find(foldFormatOptionLocation)+1};
 else
-    outputDir = ['output', num2str(avgPer)];
+    foldFormat = 'New';
+end
+
+% find average period
+if strcmp(foldFormat, 'New')
+    if ischar(avgPer)
+        outputDir = ['output', avgPer];
+    else
+        outputDir = ['output', num2str(avgPer)];
     end
+elseif strcmp(foldFormat, 'Old')
+    outputDir = 'output';
+else
+    error(['Incorrect Options for foldFormat option', char(10), 'Options are: ''Old'' or ''New'''])
+end
 
 if ~exist([siteFolder,filesep,outputDir], 'dir')
     error(['Cannot find directory:', char(13), [siteFolder,filesep,outputDir], char(13), 'Please check path.']);
@@ -77,7 +91,12 @@ else
     else
         tmpName = '';
     end
-    filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,tmpName,'*.mat'));
+    if strcmp(foldFormat, 'New')
+        filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,tmpName,'*.mat'));
+    else
+        tmpName = ['*', num2str(avgPer), 'minAvg', tmpName];
+        filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,tmpName,'*.mat'));
+    end
 end
 
 
