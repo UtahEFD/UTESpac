@@ -1,12 +1,13 @@
 function output = saveData(info,output,dataInfo,tableNames, rawFlux, template, fileDate)
 % saveData saves output data in the site folder withinn the root folder
+saveDir = [info.rootFolder, filesep, info.siteFolder, info.foldStruct];
 fprintf('\nSaving data...\n');
 
 outputDir = ['output', num2str(info.avgPer)];
 
-if ~exist([info.rootFolder, filesep, info.siteFolder, filesep, outputDir], 'dir')
+if ~exist([saveDir, filesep, outputDir], 'dir')
     fprintf(['\n\tOutput directory for', num2str(info.avgPer), ' Min average does not exist:\nCreating output dicrectory.\n']);
-    mkdir([info.rootFolder, filesep, info.siteFolder, filesep, outputDir]);
+    mkdir([saveDir, filesep, outputDir]);
 end
 % include dataInfo and headers in output folder
 output.dataInfo = dataInfo;
@@ -28,7 +29,7 @@ else
 end
 %% save .mat structure
 fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,fileDate,'.mat');
-save(strcat(info.rootFolder,filesep,info.siteFolder,filesep,outputDir,filesep,fileName),'output');
+save(strcat(saveDir,filesep,outputDir, filesep, fileName),'output');
 %% save .csv file
 if info.saveCSV
     csvSave(template,output,info)
@@ -38,14 +39,14 @@ if info.saveNetCDF
 
     netCDFtDir = 'outputNetCDF';
 
-    if ~exist([info.rootFolder, filesep, info.siteFolder, filesep, netCDFtDir], 'dir')
+    if ~exist([saveDir, filesep, netCDFtDir], 'dir')
         fprintf('\n\tOutput directory does not exist: Creating output dicrectory.\n');
-        mkdir([info.rootFolder, filesep, info.siteFolder, filesep, netCDFtDir]);
+        mkdir([saveDir, filesep, netCDFtDir]);
     end
     
     fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,fileDate,'.nc');
     
-    ncFullFileName = strcat(info.rootFolder,filesep,info.siteFolder,filesep,netCDFtDir,filesep,fileName);
+    ncFullFileName = strcat(saveDir,filesep,netCDFtDir,filesep,fileName);
     
     delete(ncFullFileName);
     
@@ -76,12 +77,12 @@ if info.saveRawConditionedData
     
     rawDir = 'outputRAW';
     
-    if ~exist([info.rootFolder, filesep, info.siteFolder, filesep, rawDir], 'dir')
+    if ~exist([saveDir, filesep, rawDir], 'dir')
         fprintf('\n\tOutput directory for RAW does not exist:\nCreating Raw output dicrectory.\n');
-        mkdir([info.rootFolder, filesep, info.siteFolder, filesep, rawDir]);
+        mkdir([saveDir, filesep, rawDir]);
     end
     
     fileName = strcat(info.siteFolder(5:end),'_raw_',PFtype,detrendType,fileDate);
-    save(strcat(info.rootFolder,filesep,info.siteFolder,filesep,rawDir,filesep,fileName),'rawFlux');
+    save(strcat(saveDir,filesep,rawDir,filesep,fileName),'rawFlux');
 end
 end

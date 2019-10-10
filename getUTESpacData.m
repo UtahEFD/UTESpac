@@ -8,6 +8,8 @@ function outputStruct = getUTESpacData(rootFolder,varargin)
 % 'avgPer' - averaging period in minutes e.g. 5
 % 'qualifier' - data qualifier that precedes date e.g. 'LPF', 'LPF_ConstDet', 'GPF', 'LinDet', etc.
 % 'rows' - array corresponding to processed dates in alphanumerical order.  e.g. 0; [5:20];
+% 'foldFormat' - output folder format: 'Old' 'New'
+% 'foldStruct' - same as in UTESpac.m 
 
 if nargin < 2
     varargin = cell.empty;
@@ -39,7 +41,15 @@ else
     end
     %site = ['site',varargin{find(siteOptionLocation)+1}];
 end
-siteFolder = strcat(rootFolder,filesep,site);
+
+% findfolder structure
+foldStructOptionLocation = strcmp(varargin,'foldStruct');
+if any(foldStructOptionLocation)
+    foldStruct = varargin{find(foldStructOptionLocation)+1};
+    siteFolder = strcat(rootFolder,filesep,site, foldStruct);
+else
+    siteFolder = strcat(rootFolder,filesep,site);
+end
 
 % find output file avgPer
 avgPerOptionLocation = strcmp(varargin,'avgPer');
@@ -77,6 +87,8 @@ elseif strcmp(foldFormat, 'Old')
 else
     error(['Incorrect Options for foldFormat option', char(10), 'Options are: ''Old'' or ''New'''])
 end
+
+
 
 if ~exist([siteFolder,filesep,outputDir], 'dir')
     error(['Cannot find directory:', char(13), [siteFolder,filesep,outputDir], char(13), 'Please check path.']);

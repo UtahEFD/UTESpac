@@ -3,13 +3,15 @@ function PFinfo = findGlobalPF(info,template,sensorInfo)
 % coefficients and the info.PFrange option.  For a global calculation, 5 minute local planar fit data (suffix: LPF) must
 % have already been run. 
 
+mainDir = [info.rootFolder,filesep,info.siteFolder, info.foldStruct];
+
 % check to see if PF needs to be calculate.  Else, load existing
-if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'file')
+if info.PF.recalculateGlobalCoefficients || ~exist([mainDir,filesep,'PFinfo.mat'],'file')
     % load data
     disp('Finding Global Planar Fit Coefficients (b0, b1, b2)')
-    allSites = dir([info.rootFolder,filesep,'site*']); allSites = {allSites(:).name};
+    allSites = dir([info.rootFolder filesep,'site*']); allSites = {allSites(:).name};
     siteNum = find(strcmp(allSites,info.siteFolder));
-    data = getUTESpacData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0);
+    data = getUTESpacData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0, 'foldStruct', info.foldStruct);
     siteName = info.siteFolder(5:end);
 
     % find sonic heights
@@ -29,8 +31,8 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         if isempty(skipFlag)
             skipFlag=1;
         end
-        if ~skipFlag && exist([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'file')
-            oldPFinfo = load([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat']);
+        if ~skipFlag && exist([mainDir, filesep,'PFinfo.mat'],'file')
+            oldPFinfo = load([mainDir, filesep,'PFinfo.mat']);
             PFinfo.(['cm_',num2str(round(z(ii)*100))]) = oldPFinfo.PFinfo.(['cm_',num2str(round(z(ii)*100))]);
             continue;
         elseif ~skipFlag 
@@ -334,9 +336,9 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         end
     end
     % save PF info
-    save([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'PFinfo')
+    save([mainDir,filesep,'PFinfo.mat'],'PFinfo')
 else % load PF info
-    load([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'])
+    load([mainDir,filesep,'PFinfo.mat'])
 end
 
 % display PF info

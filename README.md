@@ -1,20 +1,28 @@
  Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
 **Created by:** Derek Jensen (<derek591@gmail.com>) and Eric Pardyjak  
 **Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)  
-**Version:** 5.1  
-**Version Date:** 14 May 2019
+**Version:** 5.2  
+**Version Date:** 10 Oct 2019
  
 ***
 ### Version History  
 
 #### To Do / Known Bugs  
 - Many error messages are obsolete and need to be made more user friendly.
-- UTES_struct_setup.m might still fail for certain file formats. Needs more testing.
+- UTES_struct_setup.m might still fail for certain file formats. Needs more testing. Do not calculate if sonic anemometers do not exist,
 - Screen output not linear when running in parallel
-- parfor in UTESpac.m sometimes gives spurious errors. Do not happen with regular for loop.
 
 #### Changes in progress
 - Updated structure fill code to be cleaner
+
+#### 5.2
+- Added ability to change folder structure. i.e. siteinfo.m, headers, and data files do not necessarily have to be in .../siteXYZ/
+- getUTESpacdata() option added for old file output: all files in .../siteCSV/output. The default option is new folder structure as explain in 5.1 updates
+- Fixed some error messages in fluxes.m to give sensible messages
+- Parallel running 'option': scroll to ~line 207 and comment / uncomment parfor or for
+- Most of the time parallel works, but error messages become unreadable so run in serial if getting error messages for debug purposes
+- Structure Parameter calculation now works without specific pressure measurement or if no IRGA
+
 
 #### 5.1  
 - Allow user input of file format so files other than default cardConvert will work

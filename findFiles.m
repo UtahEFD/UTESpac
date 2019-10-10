@@ -3,7 +3,7 @@
 function [headersCell, dataFiles, tableNames, info] = findFiles(info)
 
 % find possible sites of interest
-sitesStruct = dir(strcat(info.rootFolder,filesep,'site*'));
+sitesStruct = dir(strcat(info.rootFolder, filesep,'site*'));
 
 % display possible sites to command window
 for ii = 1:numel(sitesStruct)
@@ -15,7 +15,7 @@ site = sitesStruct(input('Please indicate site number of interest: ')).name; clc
 info.siteFolder = site;
 
 % store site folder
-siteFolder = strcat(info.rootFolder,filesep,site);
+siteFolder = strcat(info.rootFolder,filesep,site, info.foldStruct);
 
 % run siteInfo script
 run(strcat(siteFolder,filesep,'siteInfo.m'));
@@ -38,7 +38,6 @@ for ii = 1:length(headers)
         fprintf(['\n---------------------\nSkipping files associated with: ',...
             currentHeaderFileName, '\n---------------------\n']);
         ignoreFlag(ii) = 1;
-        pause(1)
         continue
     else
         ignoreFlag(ii) = 0;
@@ -48,7 +47,7 @@ for ii = 1:length(headers)
     
     try
         % find current header array
-        headerFile = fopen(strcat(info.rootFolder,filesep,site,filesep,currentHeaderFileName));
+        headerFile = fopen(strcat(siteFolder,filesep,currentHeaderFileName));
         headerLine = fgetl(headerFile);
         currentHeaderArray =  strsplit(headerLine, ',');
                
@@ -218,7 +217,7 @@ end
 for ii = 1:size(dataFiles,2)
     for jj = 1:size(dataFiles,1)
         for kk=1:size(dataFiles, 3)
-            dataFiles{jj,ii, kk} = strcat(info.rootFolder,filesep,site,filesep,dataFiles{jj,ii, kk});
+            dataFiles{jj,ii, kk} = strcat(siteFolder,filesep,dataFiles{jj,ii, kk});
         end
     end
 end
