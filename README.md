@@ -16,6 +16,8 @@
 - Updated structure fill code to be cleaner
 
 #### 5.2
+- Added 2 examples, data from MATERHORN Playa and Oregon Vineyard.
+- Will work with old 2 day files and new hourly files
 - Added ability to change folder structure. i.e. siteinfo.m, headers, and data files do not necessarily have to be in .../siteXYZ/
 - getUTESpacdata() option added for old file output: all files in .../siteCSV/output. The default option is new folder structure as explain in 5.1 updates
 - Fixed some error messages in fluxes.m to give sensible messages
