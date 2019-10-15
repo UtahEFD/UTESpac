@@ -72,10 +72,10 @@ for ii = 1:size(dataFiles,2)
         % create empty table with complete time steps (no missed scans!)
         beginSerialDay = datenum(table(2,1),1,0) + table(2,2);
         endSerialDay = datenum(table(end-1,1),1,0) + table(end-1,2);
-        if beginSerialDay~=endSerialDay
-            error([char(13), 'DEBUG:::Files for day starting on: ', datestr(beginSerialDay),' spans more than 1 day, please check to make sure data file does not contain data going in to next day.', ...
-                char(13), 'This error is for debuging purposes, comment out if datafiles actually span more than 1 day', char(13)]);
-        end
+% % %         if beginSerialDay~=endSerialDay
+% % %             error([char(13), 'DEBUG:::Files for day starting on: ', datestr(beginSerialDay),' spans more than 1 day, please check to make sure data file does not contain data going in to next day.', ...
+% % %                 char(13), 'This error is for debuging purposes, comment out if datafiles actually span more than 1 day', char(13)]);
+% % %         end
         filledTable = completeTableCreate(beginSerialDay,endSerialDay,sampleFrequency,expectedTableColumns);
 
         % find percent available data

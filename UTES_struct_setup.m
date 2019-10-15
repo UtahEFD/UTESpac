@@ -73,7 +73,11 @@ for qq=1:MaxInst
         sigma_w = nanstd(raw.wPF(cntr1:cntr2, qq)); 
         U = nanmean(sqrt(raw.uPF(cntr1:cntr2, qq).^2+raw.vPF(cntr1:cntr2, qq).^2));
         if isfield(sensorInfo, 'P')
-            P = nanmean(data{TableNum}(cntr1:cntr2, sensorInfo.P(siteInfoTableNum, 2)).*1000); %average Pressure [Pa]
+            if and(size(sensorInfo.P, 1)==1, sensorInfo.P(1)==siteInfoTableNum)
+                P = nanmean(data{TableNum}(cntr1:cntr2, sensorInfo.P(1, 2)).*1000); %average Pressure [Pa]
+            else
+                P = nanmean(data{TableNum}(cntr1:cntr2, sensorInfo.P(siteInfoTableNum, 2)).*1000); %average Pressure [Pa]
+            end
 
             if isnan(P) || abs((P - PRef)/PRef) > 0.05
                 P = PRef;
