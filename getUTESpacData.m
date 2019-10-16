@@ -8,6 +8,8 @@ function outputStruct = getUTESpacData(rootFolder,varargin)
 % 'avgPer' - averaging period in minutes e.g. 5
 % 'qualifier' - data qualifier that precedes date e.g. 'LPF', 'LPF_ConstDet', 'GPF', 'LinDet', etc.
 % 'rows' - array corresponding to processed dates in alphanumerical order.  e.g. 0; [5:20];
+% 'foldFormat' - output folder format: 'Old' 'New'
+% 'foldStruct' - same as in UTESpac.m 
 
 if nargin < 2
     varargin = cell.empty;
@@ -21,7 +23,7 @@ sitesStruct = dir(strcat(rootFolder,filesep,'site*'));
 
 % find location of 'site' option if it exists
 siteOptionLocation = strcmp(varargin,'site');
-if isempty(siteOptionLocation) % if 'site' option not used, display all sites
+if ~any(siteOptionLocation) % if 'site' option not used, display all sites
     % display possible sites to command window
     for ii = 1:length(sitesStruct)
         display(sprintf('%g. %s',ii,sitesStruct(ii).name));
@@ -39,39 +41,80 @@ else
     end
     %site = ['site',varargin{find(siteOptionLocation)+1}];
 end
-siteFolder = strcat(rootFolder,filesep,site);
+
+% findfolder structure
+foldStructOptionLocation = strcmp(varargin,'foldStruct');
+if any(foldStructOptionLocation)
+    foldStruct = varargin{find(foldStructOptionLocation)+1};
+    siteFolder = strcat(rootFolder,filesep,site, foldStruct);
+else
+    siteFolder = strcat(rootFolder,filesep,site);
+end
 
 % find output file avgPer
 avgPerOptionLocation = strcmp(varargin,'avgPer');
-if ~isempty(avgPerOptionLocation)
+if any(avgPerOptionLocation)
     avgPer = varargin{find(avgPerOptionLocation)+1};
 else
-    avgPer = '';
+    avgPer = input('Please input an Average Period or RAW: ', 's');
 end
 
 % find output file qualifier
 qualifierOptionLocation = strcmp(varargin,'qualifier');
-if max(qualifierOptionLocation)
+if any(qualifierOptionLocation)
     qualifier = varargin{find(qualifierOptionLocation)+1};
 else
     qualifier = '';
 end
 
+% find output folder type
+foldFormatOptionLocation = strcmp(varargin,'foldFormat');
+if any(foldFormatOptionLocation)
+    foldFormat = varargin{find(foldFormatOptionLocation)+1};
+else
+    foldFormat = 'New';
+end
+
+% find average period
+if strcmp(foldFormat, 'New')
+    if ischar(avgPer)
+        outputDir = ['output', avgPer];
+    else
+        outputDir = ['output', num2str(avgPer)];
+    end
+elseif strcmp(foldFormat, 'Old')
+    outputDir = 'output';
+else
+    error(['Incorrect Options for foldFormat option', char(10), 'Options are: ''Old'' or ''New'''])
+end
+
+
+
+if ~exist([siteFolder,filesep,outputDir], 'dir')
+    error(['Cannot find directory:', char(13), [siteFolder,filesep,outputDir], char(13), 'Please check path.']);
+end
+
 % find possible output files of interest
 if isempty(varargin)
-    filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*.mat'));
+    filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,'*.mat'));
 else
     if ~isempty(qualifier)
         tmpName = ['*', qualifier];
     else
         tmpName = '';
     end
-    filesStruct = dir(strcat(siteFolder,filesep,'output',filesep,'*_',num2str(avgPer),tmpName,'*.mat'));
+    if strcmp(foldFormat, 'New')
+        filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,tmpName,'*.mat'));
+    else
+        tmpName = ['*', num2str(avgPer), 'minAvg', tmpName];
+        filesStruct = dir(strcat(siteFolder,filesep,outputDir,filesep,tmpName,'*.mat'));
+    end
 end
+
 
 % find location of 'rows' option if it exists
 rowsOptionLocation = strcmp(varargin,'rows');
-if ~isempty(rowsOptionLocation)
+if any(rowsOptionLocation)
     rows = varargin{find(rowsOptionLocation)+1};
 else
     % display possible output files to command window
@@ -82,6 +125,9 @@ else
     
     % ask user to select appropriate outputfiles
     rows = input('Plese input dates of interest. e.g. [1 3 4:7] or ''0'' for all dates: ');clc;
+    if isempty(rows)
+        rows = 0;
+    end
 end
 % if '0' input, make rows of interest equal to all possible dates
 if rows == 0
@@ -90,7 +136,7 @@ end
 
 % store output file name in outputFileNames cell
 for ii = 1:length(rows)
-    outputFileName{ii} = strcat(siteFolder,filesep,'output',filesep,filesStruct(rows(ii)).name);
+    outputFileName{ii} = strcat(siteFolder,filesep,outputDir,filesep,filesStruct(rows(ii)).name);
 end
 
 % iterate through all file names
@@ -122,8 +168,12 @@ for ii = 1:numel(outputFileName)
     if isfield(output,'tableNames')  % use averaged tables for avg data
         standardField = 'tableNames';
         numStandardFields = numel(output.(standardField));
-    elseif isfield(output,'t') % use time stams for raw data
-        standardField = 't';
+    elseif or(isfield(output,'t'), isfield(output, 'time')) % use time stams for raw data
+        if isfield(output,'t')
+            standardField = 't';
+        else
+            standardField = 'time';
+        end
         numStandardFields = 1;
     end
    
@@ -134,7 +184,7 @@ for ii = 1:numel(outputFileName)
             catch err
                error('Problem loading %s output structure: %s',outputFileName{ii},err.message)
             end
-        elseif strcmp(standardField,'t')
+        elseif or(strcmp(standardField,'t'), strcmp(standardField,'time'))
             numRows(jj) = size(output.(standardField),1);
         end
     end

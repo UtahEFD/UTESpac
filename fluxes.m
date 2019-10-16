@@ -838,7 +838,15 @@ try
                 
             end
         catch err
-            message = strcat(err.message,'@ line',num2str(err.stack.line),' Problem with sonic at ',num2str(sonHeight),' m will be skipped');
+            for ww=1:length(err.stack)
+                if ww==1
+                    errStack = [err.stack(ww).name, ' @ line: ', num2str(err.stack(ww).line)];
+                else
+                    tmpStack =  [err.stack(ww).name, ' @ line: ', num2str(err.stack(ww).line)];
+                    errStack = [errStack, ' & ', tmpStack];
+                end
+            end
+            message = [err.message, char(13), errStack, char(13), 'Problem with sonic at ',num2str(sonHeight),' m will be skipped'];
             warning(message)
             if isempty(output.warnings{1})
                 output.warnings{1,1} = message;
@@ -890,7 +898,15 @@ try
         output.CO2fluxHeader = CO2fluxHeader(flag);
     end
 catch err
-    message = strcat(err.message,'@ line ',num2str(err.stack.line),' UNABLE TO FIND FLUXES AT All HEIGHTS');
+    for ww=1:length(err.stack)
+        if ww==1
+            errStack = [err.stack(ww).name, ' @ line: ', num2str(err.stack(ww).line)];
+        else
+            tmpStack =  [err.stack(ww).name, ' @ line: ', num2str(err.stack(ww).line)];
+            errStack = [errStack, ' & ', tmpStack];
+        end
+    end
+    message = [err.message, char(13), errStack, char(13), 'UNABLE TO FIND FLUXES AT All HEIGHTS'];
     warning(message)
     raw = [];
     if isempty(output.warnings{1})

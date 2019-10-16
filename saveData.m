@@ -1,10 +1,13 @@
-function output = saveData(info,output,dataInfo,headers,tableNames, rawFlux, template)
+function output = saveData(info,output,dataInfo,tableNames, rawFlux, template, fileDate)
 % saveData saves output data in the site folder withinn the root folder
-display('saving data');
+saveDir = [info.rootFolder, filesep, info.siteFolder, info.foldStruct];
+fprintf('\nSaving data...\n');
 
-if ~exist([info.rootFolder, filesep, info.siteFolder, filesep, 'output'], 'dir')
-    fprintf('\n\tOutput directory does not exist: Creating output dicrectory.\n');
-    mkdir([info.rootFolder, filesep, info.siteFolder, filesep, 'output']);
+outputDir = ['output', num2str(info.avgPer)];
+
+if ~exist([saveDir, filesep, outputDir], 'dir')
+    fprintf(['\n\tOutput directory for', num2str(info.avgPer), ' Min average does not exist:\nCreating output dicrectory.\n']);
+    mkdir([saveDir, filesep, outputDir]);
 end
 % include dataInfo and headers in output folder
 output.dataInfo = dataInfo;
@@ -25,18 +28,25 @@ else
     detrendType = 'ConstDet_';
 end
 %% save .mat structure
-fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,info.date,'.mat');
-save(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName),'output');
+fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,fileDate,'.mat');
+save(strcat(saveDir,filesep,outputDir, filesep, fileName),'output');
 %% save .csv file
 if info.saveCSV
     csvSave(template,output,info)
 end
 %% save netCDF  From: http://stackoverflow.com/questions/21053406/matlab-save-cell-arrays-to-netcdf-file
 if info.saveNetCDF
+
+    netCDFtDir = 'outputNetCDF';
+
+    if ~exist([saveDir, filesep, netCDFtDir], 'dir')
+        fprintf('\n\tOutput directory does not exist: Creating output dicrectory.\n');
+        mkdir([saveDir, filesep, netCDFtDir]);
+    end
     
-    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,info.date,'.nc');
+    fileName = strcat(info.siteFolder(5:end),'_',num2str(info.avgPer),'minAvg_',PFtype,detrendType,fileDate,'.nc');
     
-    ncFullFileName = strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName);
+    ncFullFileName = strcat(saveDir,filesep,netCDFtDir,filesep,fileName);
     
     delete(ncFullFileName);
     
@@ -64,7 +74,15 @@ if info.saveNetCDF
 end
 %% save raw fluxes
 if info.saveRawConditionedData
-    fileName = strcat(info.siteFolder(5:end),'_raw_',PFtype,detrendType,info.date);
-    save(strcat(info.rootFolder,filesep,info.siteFolder,filesep,'output',filesep,fileName),'rawFlux');
+    
+    rawDir = 'outputRAW';
+    
+    if ~exist([saveDir, filesep, rawDir], 'dir')
+        fprintf('\n\tOutput directory for RAW does not exist:\nCreating Raw output dicrectory.\n');
+        mkdir([saveDir, filesep, rawDir]);
+    end
+    
+    fileName = strcat(info.siteFolder(5:end),'_raw_',PFtype,detrendType,fileDate);
+    save(strcat(saveDir,filesep,rawDir,filesep,fileName),'rawFlux');
 end
 end

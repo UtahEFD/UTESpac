@@ -3,7 +3,7 @@
 function [headersCell, dataFiles, tableNames, info] = findFiles(info)
 
 % find possible sites of interest
-sitesStruct = dir(strcat(info.rootFolder,filesep,'site*'));
+sitesStruct = dir(strcat(info.rootFolder, filesep,'site*'));
 
 % display possible sites to command window
 for ii = 1:numel(sitesStruct)
@@ -15,13 +15,15 @@ site = sitesStruct(input('Please indicate site number of interest: ')).name; clc
 info.siteFolder = site;
 
 % store site folder
-siteFolder = strcat(info.rootFolder,filesep,site);
+siteFolder = strcat(info.rootFolder,filesep,site, info.foldStruct);
 
 % run siteInfo script
 run(strcat(siteFolder,filesep,'siteInfo.m'));
 
 % find headers for selected site
 headers = dir(strcat(siteFolder,filesep,'*header.*'));
+
+
 
 if isempty(headers)
     error('Unable to Find Table Headers!  Check format of header name.')
@@ -30,9 +32,22 @@ end
 % iterate through headers and store .csv files in csvFileStruct
 for ii = 1:length(headers)
     currentHeaderFileName = headers(ii).name;
+    
+    % Ignore Tables
+    if any(cell2mat(cellfun(@(x) ~isempty(strfind(currentHeaderFileName, x)), info.TableIgnore, 'UniformOutput', 0)))
+        fprintf(['\n---------------------\nSkipping files associated with: ',...
+            currentHeaderFileName, '\n---------------------\n']);
+        ignoreFlag(ii) = 1;
+        continue
+    else
+        ignoreFlag(ii) = 0;
+    end
+
+    
+    
     try
         % find current header array
-        headerFile = fopen(strcat(info.rootFolder,filesep,site,filesep,currentHeaderFileName));
+        headerFile = fopen(strcat(siteFolder,filesep,currentHeaderFileName));
         headerLine = fgetl(headerFile);
         currentHeaderArray =  strsplit(headerLine, ',');
                
@@ -60,7 +75,7 @@ for ii = 1:length(headers)
             else % if digitsAndDecimals has multiple values, use diff to find consecutive locations, 
                  % last chunk of consecutive locations must be the height locations
                 heightBeginMarker = find(diff(digitAndDecimalLocations) > 1,1,'last');
-                if isempty(heightBeginMarker);
+                if isempty(heightBeginMarker)
                     heightBeginMarker = 0;
                 end
                 heightLocations = digitAndDecimalLocations(heightBeginMarker+1:end);
@@ -91,43 +106,100 @@ for ii = 1:length(headers)
     % eliminate the header file from the list
     tableFiles(~cellfun(@isempty,strfind({tableFiles(:).name},'header'))) = [];
     
+    %In case of similar table names, omit wrong table names
+    clearvars nameFlag
+    for kk = 1:length(tableFiles)
+        tableFile = tableFiles(kk).name;
+
+        %Parse filename to get date
+        fileForm = regexp(tableFile, info.FileForm, 'names');
+        
+        nameCheck = strcmp(fileForm.TableName, tableName);
+        if nameCheck
+            nameFlag(kk) = true;
+        else
+            nameFlag(kk) = false;
+        end
+    end
+    tableFiles = tableFiles(nameFlag);
+    
+    
     % sort and store csv files in csvFilesCell
     csvFiles = cell(length(tableFiles),1);  %preallocate for speed
     csvDates = NaN(size(csvFiles));
     for jj = 1:length(tableFiles)
         tableFile = tableFiles(jj).name;
+
+        %Parse filename to get date
+        fileForm = regexp(tableFile, info.FileForm, 'names');
+        
+        %Check if Day Hour Minutes exist
+        testString = {'Day', 'Hour', 'Minute', 'Second'};
+        fieldnames = fields(fileForm);
+        contentCheck = cell2mat(cellfun(@(x) strcmp(x, testString), fieldnames, 'UniformOutput', false));
+        
+        %Each filename must contain a Day
+        if ~any(contentCheck(:, 1))
+            error('File format needs to have at least Year, Month, and Day. Check input for fileForm and change file names if necessary');
+        end
+        
+        %If no Hour in filename, set to 0
+        if ~any(contentCheck(:, 2))
+            fileForm.Hour = '0';
+        end
+        %If no minutes in filename, set to 0
+        if ~any(contentCheck(:, 3))
+            fileForm.Minute = '0';
+        end
+
+        %If no minutes in filename, set to 0
+        if ~any(contentCheck(:, 4))
+            fileForm.Second = '0';
+        end
+        
         
         % place tableFile name in csvFiles cell
         csvFiles{jj} = tableFile;
         
-        % find location of date
-        dateBeginLoc = strfind(tableFiles(jj).name,tableName)+length(tableName);
-
         % parse date string to create date number
-        csvDates(jj) = datenum(str2double(tableFile(dateBeginLoc+1:dateBeginLoc+4)),str2double(tableFile(dateBeginLoc+6:dateBeginLoc+7)),... % year, month
-            str2double(tableFile(dateBeginLoc+9:dateBeginLoc+10)),str2double(tableFile(dateBeginLoc+12:dateBeginLoc+13)),... % day, hour
-            str2double(tableFile(dateBeginLoc+14:dateBeginLoc+15)),0); % minute, second
+        csvDates(jj) = datenum(str2double(fileForm.Year), str2double(fileForm.Month), str2double(fileForm.Day), str2double(fileForm.Hour), str2double(fileForm.Minute), str2double(fileForm.Second));
     end
     
     %Find Unique Days
     [a, ind] = unique(floor(csvDates));
+    ind(end+1) = length(csvDates);
     
     % place csv files in cell matrix where the row is determined by the date
     if ii == 1
         dateBegin = floor(min(csvDates)-20); % all tables must begin and end within 20 days of first and last dates of table1
         dateEnd = floor(max(csvDates)+20);
-        dataFiles = cell(dateEnd-dateBegin,length(headers), round(max(diff(ind))/10)*10);
+        if length(ind)==2
+            dataFiles = cell(1,length(headers));
+        else
+            dataFiles = cell(dateEnd-dateBegin,length(headers), round(max(diff(ind))/10)*10);
+        end
     end
-    for jj = 1:(length(ind)-1)
-        for qq=1:length(ind(jj):ind(jj+1)-1)
-            dataFiles{floor(a(jj))-dateBegin,ii, qq} = csvFiles{ind(jj)+qq-1};
+    if length(ind)==2
+        dataFiles{1, ii} = csvFiles{1};
+    else
+        for jj = 1:(length(ind)-1)
+            for qq=1:length(ind(jj):ind(jj+1)-1)
+                dataFiles{a(jj)-dateBegin,ii, qq} = csvFiles{ind(jj)+qq-1};
+            end
         end
     end
 end
-% check cell matrix for empty rows and delete them
-dataFilesFlag = logical(sum(sum(cellfun(@isempty,dataFiles),3)==size(dataFiles, 3), 2));
 
-dataFiles = dataFiles(~dataFilesFlag, :, :);
+%Remove Ignored tables
+headersCell = headersCell(~ignoreFlag);
+dataFiles = dataFiles(:, ~ignoreFlag, :);
+tableNames = tableNames(~ignoreFlag);
+
+
+% check cell matrix for empty rows and delete them
+dataFilesFlag = any((sum(cellfun(@isempty,dataFiles),3)==size(dataFiles, 3))==0, 2);
+
+dataFiles = dataFiles(dataFilesFlag, :, :);
 
 % ask user to select which dates to calculate
 displayCell = cell(size(dataFiles,1),size(dataFiles,2)+1);
@@ -145,7 +217,7 @@ end
 for ii = 1:size(dataFiles,2)
     for jj = 1:size(dataFiles,1)
         for kk=1:size(dataFiles, 3)
-            dataFiles{jj,ii, kk} = strcat(info.rootFolder,filesep,site,filesep,dataFiles{jj,ii, kk});
+            dataFiles{jj,ii, kk} = strcat(siteFolder,filesep,dataFiles{jj,ii, kk});
         end
     end
 end

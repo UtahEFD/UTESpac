@@ -14,21 +14,27 @@ fprintf('\nCalculating Structure Parameters\nC_T^2 C_Tq C_q^2\n');
 
 Rd = 287.058;  % [J/K/kg] Gas constant for air
 
-%Number of Sonics
-NumSonic = size(sensorInfo.Tson, 1);
-%Number IRGAs
-NumIRGA = size(sensorInfo.irgaH2O, 1);
-
-MaxInst = max([NumSonic, NumIRGA]);
-MinInst = min([NumSonic, NumIRGA]);
 
 %%%%%%%%%%%%%
 %When Finewire does not exist
 %Eventually need a better system than this
 fields = fieldnames(sensorInfo);
 no_fw = ~any(cellfun(@(x) strcmp(x, 'fw'), fields));
-
+no_irga = ~any(cellfun(@(x) strcmp(x, 'irgaH2O'), fields));
 %%%%%%%%%%%%%
+
+
+%Number of Sonics
+NumSonic = size(sensorInfo.Tson, 1);
+%Number IRGAs
+if no_irga
+    NumIRGA = 0;
+else
+    NumIRGA = size(sensorInfo.irgaH2O, 1);
+end
+
+MaxInst = max([NumSonic, NumIRGA]);
+MinInst = min([NumSonic, NumIRGA]);
 
 
 
@@ -53,13 +59,33 @@ for qq=1:MaxInst
     cntr2 = pnts;
     for ii=1:length(raw.t)/pnts
         
+        % find reference pressure
+        zRef = min(sensorInfo.u(:,3));  % zRef is lowest sonic level
+        altitude = info.siteElevation;
+        PRef = 101325*(1-2.25577*10^-5*(altitude+zRef))^5.25588; % find pRef from elevation: http://www.engineeringtoolbox.com/air-altitude-pressure-d_462.html
+
+        
+        
         SonHeight = sensorInfo.Tson(qq, 3);
         %Sonic Variables for each height
         sigma_u = nanstd(raw.uPF(cntr1:cntr2, qq)); 
         sigma_v = nanstd(raw.vPF(cntr1:cntr2, qq)); 
         sigma_w = nanstd(raw.wPF(cntr1:cntr2, qq)); 
         U = nanmean(sqrt(raw.uPF(cntr1:cntr2, qq).^2+raw.vPF(cntr1:cntr2, qq).^2));
-        P = nanmean(data{TableNum}(cntr1:cntr2, sensorInfo.P(siteInfoTableNum, 2)).*1000); %average Pressure [Pa]
+        if isfield(sensorInfo, 'P')
+            if and(size(sensorInfo.P, 1)==1, sensorInfo.P(1)==siteInfoTableNum)
+                P = nanmean(data{TableNum}(cntr1:cntr2, sensorInfo.P(1, 2)).*1000); %average Pressure [Pa]
+            else
+                P = nanmean(data{TableNum}(cntr1:cntr2, sensorInfo.P(siteInfoTableNum, 2)).*1000); %average Pressure [Pa]
+            end
+
+            if isnan(P) || abs((P - PRef)/PRef) > 0.05
+                P = PRef;
+            end
+        else
+            P = PRef;
+        end
+
         if ~no_fw
             T = raw.fwT(cntr1:cntr2, qq)+273.15; %Temperature [K]
             
@@ -175,7 +201,7 @@ for qq=1:MaxInst
             end
         else
             %If only Sonics
-            output.StructParam = [time, Ct2', CtSon2'];
+            output.StructParam = [time, Ct2', Ctson2'];
             output.StructParamHeader = {'Timestamp', ...
                 [num2str(sensorInfo.Tson(qq, end)), 'm Ctfw2: K^2 m^-2/3'],...
                 [num2str(sensorInfo.Tson(qq, end)), 'm CtSon2: K^2 m^-2/3'];...

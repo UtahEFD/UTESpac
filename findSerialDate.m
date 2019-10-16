@@ -1,4 +1,4 @@
-function [data, dataInfo, info] = findSerialDate(data, dataInfo, info)
+function [data, dataInfo, fileDate] = findSerialDate(data, dataInfo, info)
 fprintf('\nStoring serial date number in first column of each table and deleting columns 2 - 4\n')
 for i = 1:length(data)
     fprintf('Finding serial dates for table %g\n',i)
@@ -22,8 +22,8 @@ for i = 1:length(data)
             dataInfo{row+1,i} = strcat('end date:',datestr(data{i}(end,1)));
         end
         
-        info.date = datestr(data{i}(1,1),'yyyy_mm_dd');
-        
+        %info.date = datestr(data{i}(1,1),'yyyy_mm_dd');
+        fileDate = datestr(data{i}(1,1),'yyyy_mm_dd');
     end
 end
 end

@@ -3,13 +3,15 @@ function PFinfo = findGlobalPF(info,template,sensorInfo)
 % coefficients and the info.PFrange option.  For a global calculation, 5 minute local planar fit data (suffix: LPF) must
 % have already been run. 
 
+mainDir = [info.rootFolder,filesep,info.siteFolder, info.foldStruct];
+
 % check to see if PF needs to be calculate.  Else, load existing
-if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info.siteFolder,filesep,'pfInfo.mat'],'file')
+if info.PF.recalculateGlobalCoefficients || ~exist([mainDir,filesep,'PFinfo.mat'],'file')
     % load data
     disp('Finding Global Planar Fit Coefficients (b0, b1, b2)')
-    allSites = dir([info.rootFolder,filesep,'site*']); allSites = {allSites(:).name};
+    allSites = dir([info.rootFolder filesep,'site*']); allSites = {allSites(:).name};
     siteNum = find(strcmp(allSites,info.siteFolder));
-    data = getUTESpacData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0);
+    data = getUTESpacData(info.rootFolder,'site',siteNum,'avgPer',5,'qualifier','LPF','rows',0, 'foldStruct', info.foldStruct);
     siteName = info.siteFolder(5:end);
 
     % find sonic heights
@@ -26,12 +28,15 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         
         % allow user to skip height
         skipFlag = input(sprintf('Skip %g m (1=no, 0=yes)',z(ii)));
-        if ~skipFlag && exist([info.rootFolder,filesep,info.siteFolder,filesep,'pfInfo.mat'],'file')
-            oldPFinfo = load([info.rootFolder,filesep,info.siteFolder,filesep,'pfInfo.mat']);
+        if isempty(skipFlag)
+            skipFlag=1;
+        end
+        if ~skipFlag && exist([mainDir, filesep,'PFinfo.mat'],'file')
+            oldPFinfo = load([mainDir, filesep,'PFinfo.mat']);
             PFinfo.(['cm_',num2str(round(z(ii)*100))]) = oldPFinfo.PFinfo.(['cm_',num2str(round(z(ii)*100))]);
             continue;
         elseif ~skipFlag 
-            disp('I couldn''t find an existing pfInfo.mat file so you cannot skip any levels')
+            disp('I couldn''t find an existing PFinfo.mat file so you cannot skip any levels')
         end
         
         % find variable name at ith height
@@ -43,9 +48,11 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         % find table containing variable names
         flag = [];
         for j = 1:length(tableNames)
-            flag = sum(strcmp(data.(strcat(tableNames{j},'Header'))(1,:),varName_u));
-            localSonicTable = tableNames{j};
-            if flag
+            flag = sum(cell2mat(strfind(data.(strcat(tableNames{j},'Header'))(1,:),varName_u)));
+            if flag>1
+               error(['Variable ' varName_u, ' appears more than once in ', tableNames{j}, char(10), 'Check header file and variable template']);            
+            elseif flag==1
+                localSonicTable = tableNames{j};
                 break
             end
         end
@@ -121,7 +128,7 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         direction = mod(atan2(-1*vDir,uDir)*180/pi+bearing,360);
         
         % plot seasonal wind histogram and have user select sectors
-        figure('units','normalized','outerposition',[0 0 1 1])
+        figure('units','normalized','outerposition',[0 0 .5 .5])
         % histogram
         subplot(2,1,1)
         hist(direction,100)
@@ -329,9 +336,9 @@ if info.PF.recalculateGlobalCoefficients || ~exist([info.rootFolder,filesep,info
         end
     end
     % save PF info
-    save([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'],'PFinfo')
+    save([mainDir,filesep,'PFinfo.mat'],'PFinfo')
 else % load PF info
-    load([info.rootFolder,filesep,info.siteFolder,filesep,'PFinfo.mat'])
+    load([mainDir,filesep,'PFinfo.mat'])
 end
 
 % display PF info

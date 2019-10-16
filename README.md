@@ -1,18 +1,44 @@
-# Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
+ Utah Turbulence in Environmental Studies Process and Analysis Code (UTESpac)   
 **Created by:** Derek Jensen (<derek591@gmail.com>) and Eric Pardyjak  
 **Current Version updates:** Alexei Perelet (<alexei.pere@gmail.com>)  
-**Version:** 5.0  
-**Version Date:** 24 Feb 2019
-
-## NOTE: This readme needs to be updated  
+**Version:** 5.2  
+**Version Date:** 10 Oct 2019
+ 
 ***
 ### Version History  
 
 #### To Do / Known Bugs  
-- Many error messages are obsolete and need to be made more user friendly
-- UTES_struct_setup.m might still fail for certain file formats. Needs more testing:
+- Many error messages are obsolete and need to be made more user friendly.
+- UTES_struct_setup.m might still fail for certain file formats. Needs more testing. Do not calculate if sonic anemometers do not exist,
+- Screen output not linear when running in parallel
 
-#### 4.1-5.0  
+#### Changes in progress
+- Updated structure fill code to be cleaner
+
+#### 5.2
+- Added 2 examples, data from MATERHORN Playa and Oregon Vineyard.
+- Will work with old 2 day files and new hourly files
+- Added ability to change folder structure. i.e. siteinfo.m, headers, and data files do not necessarily have to be in .../siteXYZ/
+- getUTESpacdata() option added for old file output: all files in .../siteCSV/output. The default option is new folder structure as explain in 5.1 updates
+- Fixed some error messages in fluxes.m to give sensible messages
+- Parallel running 'option': scroll to ~line 207 and comment / uncomment parfor or for
+- Most of the time parallel works, but error messages become unreadable so run in serial if getting error messages for debug purposes
+- Structure Parameter calculation now works without specific pressure measurement or if no IRGA
+
+
+#### 5.1  
+- Allow user input of file format so files other than default cardConvert will work
+- Split output folder into output(avgPer) and outputRAW. Makes data collection with getUTESpacData() easier
+- Fixed errors in findGlobalPF.m when looking for existing PFinfo file
+- Days now run in parallel
+- Fixed issue with loading only 1 day of data
+- Updated Tower Wind sector to vary for each sonic
+- Fixed issue with finding tables if table names were identical except at the end (e.g. FastResponse & FastResponse2)
+- Allow user to ignore specific table names in directory
+- Fixed issue with loading times with missing data tables
+- Sometimes parfor does not work. Gives errors. Use regular for loop in UTESpac.m when that happens.
+
+#### 5.0  
 - Allow source CSV files to have multiple files per day.
 - Added calculations for 2nd order structure function for temperature and humidity
 - Data output directory will now be automatically created if it does not exist
@@ -20,7 +46,7 @@
 - Changed some function names so they do not coincide with built in matlab functions
 
 #### 1.0-4.1  
-- I do not have this information
+- No information
 
 ***
 ### About:
