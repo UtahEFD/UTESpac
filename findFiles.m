@@ -102,7 +102,7 @@ for ii = 1:length(headers)
     
     % find all files associated with the tableName
     tableFiles = dir(strcat(siteFolder,filesep,strcat('*',tableName,'*')));
-    
+
     % eliminate the header file from the list
     tableFiles(~cellfun(@isempty,strfind({tableFiles(:).name},'header'))) = [];
     
@@ -113,6 +113,19 @@ for ii = 1:length(headers)
 
         %Parse filename to get date
         fileForm = regexp(tableFile, info.FileForm, 'names');
+        FileFormFlag(kk) = 0;
+        if isempty(fileForm)
+            FileFormFlag(kk) = 1;
+            info.FileForm1 = [info.FileForm(1:end-4), '_\d+.dat'];
+            fileForm = regexp(tableFile, info.FileForm1, 'names');
+            if isempty(fileForm)
+                error(['Invalid Fileform for file: ', char(10), ...
+                    char(9), tableFile, char(10), ...
+                    'Please insure only valid table files and header files exist in directory: ', char(10),...
+                    char(9), tableFiles(kk).folder, char(10),...
+                    'If file is valid please make sure the naming satisfies the regular expression defined in info.FileForm', char(10)]);
+            end
+        end
         
         nameCheck = strcmp(fileForm.TableName, tableName);
         if nameCheck
@@ -131,7 +144,11 @@ for ii = 1:length(headers)
         tableFile = tableFiles(jj).name;
 
         %Parse filename to get date
-        fileForm = regexp(tableFile, info.FileForm, 'names');
+        if FileFormFlag(jj)
+            fileForm = regexp(tableFile, info.FileForm1, 'names');
+        else
+            fileForm = regexp(tableFile, info.FileForm, 'names');
+        end
         
         %Check if Day Hour Minutes exist
         testString = {'Day', 'Hour', 'Minute', 'Second'};
@@ -179,6 +196,15 @@ for ii = 1:length(headers)
             dataFiles = cell(dateEnd-dateBegin,length(headers), round(max(diff(ind))/10)*10);
         end
     end
+    
+    % Check if there are files with outlier date stamps
+    dateCheck = find(or(a<dateBegin, a>dateEnd));
+        if ~isempty(dateCheck)
+           error(['The following Files do not fall outside expected time:', char(10),...
+               csvFiles{ind(dateCheck)}, char(10),...
+               'Please Delete or fix the dates']);
+        end
+    
     if length(ind)==2
         dataFiles{1, ii} = csvFiles{1};
     else

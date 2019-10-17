@@ -16,6 +16,7 @@
 - Updated structure fill code to be cleaner
 
 #### 5.2
+- Filename Duplicates (e.g. *_1.dat) are not recognized by UTESpac. This happens when the logger is reset within a minute as filenames have timestamp only down to the minute.
 - Added 2 examples, data from MATERHORN Playa and Oregon Vineyard.
 - Will work with old 2 day files and new hourly files
 - Added ability to change folder structure. i.e. siteinfo.m, headers, and data files do not necessarily have to be in .../siteXYZ/

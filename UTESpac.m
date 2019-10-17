@@ -59,7 +59,7 @@ close all; clearvars; clc;
 info.UTESpacVersion = '5.2';
 
 % enter root folder where site* folders are located
-%info.rootFolder = 'H:\Alexei\Data\C-FOG\Data\Ferryland - Battery';
+%info.rootFolder = '/uufs/chpc.utah.edu/common/home/IPAQS-group1/IPAQS19/Travis_Scratch/Data/Sonic_Array';
 info.rootFolder = '/uufs/chpc.utah.edu/common/home/IPAQS-group1/IPAQS19/Data/Sonic_Array';
 
 % folder structure between site folder and CSV files
@@ -67,6 +67,7 @@ info.rootFolder = '/uufs/chpc.utah.edu/common/home/IPAQS-group1/IPAQS19/Data/Son
 %   .../siteXYZ/*.dat       -> info.foldstruct = '';
 %   .../siteXYZ/CSV/*.dat   -> info.foldstruct = [filesep, 'CSV'];
 info.foldStruct = [filesep, 'CSV'];
+%info.foldStruct = '';
 
 % Enter regular expression for file for
 % fields of <Year>, <Month>, <Day> are required
@@ -164,12 +165,12 @@ info.diagnosticTest.meanLiGasDiagnosticLimit = 220;  % Full strength is 255, les
 template.u = 'Ux_*'; % sonic u  --   [m/s]
 template.v = 'Uy_*'; % sonic v  --   [m/s]
 template.w = 'Uz_*'; % sonic w  --   [m/s]
-template.Tson = 'T_Sonic_*'; % sonic T  --   [C or K]
-template.sonDiagnostic = 'sonic_diag_*'; % sonic diagnostic  --  [-]
+template.Tson = 'Ts_*'; % sonic T  --   [C or K]
+template.sonDiagnostic = 'diag_sonic_*'; % sonic diagnostic  --  [-]
 template.fw = 'fw_*'; % sonic finewires to be used for Eddy Covariance  --  [C]
 template.RH = 'RH_HMP_*'; % slow response relative humidity for virtual temperature calculation  --  [Fract or %]
 template.T = 'T_HMP_*'; % slow response temperature  --  [C]
-template.P = 'Pressure_*'; % pressure  --  [kPa or mBar]
+template.P = 'pressure'; % pressure  --  [kPa or mBar]
 template.irgaH2O = 'H2O_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [g/m^3]
 template.irgaH2OsigStrength = 'H2OSig_*'; % EC150 Signal Strength  --  [-]
 template.irgaCO2 = 'CO2_*'; % for use with Campbell EC150 and IRGASON.  WPL corrections applied  --  [mg/m^3]
